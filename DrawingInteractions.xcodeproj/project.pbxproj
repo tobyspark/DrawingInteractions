@@ -15,6 +15,7 @@
 		4B8A2DCD20651C91005B9223 /* DrawingInteractionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B8A2DCC20651C91005B9223 /* DrawingInteractionsTests.swift */; };
 		4B8A2DD820652AC5005B9223 /* VideoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B8A2DD720652AC5005B9223 /* VideoView.swift */; };
 		4B8A2DDA206533AE005B9223 /* testvideo.mov in Resources */ = {isa = PBXBuildFile; fileRef = 4B8A2DD9206533AE005B9223 /* testvideo.mov */; };
+		4B8A2DDC2065502A005B9223 /* VideoTimelineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B8A2DDB2065502A005B9223 /* VideoTimelineView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -40,6 +41,7 @@
 		4B8A2DCE20651C91005B9223 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4B8A2DD720652AC5005B9223 /* VideoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoView.swift; sourceTree = "<group>"; };
 		4B8A2DD9206533AE005B9223 /* testvideo.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = testvideo.mov; sourceTree = "<group>"; };
+		4B8A2DDB2065502A005B9223 /* VideoTimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoTimelineView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -84,6 +86,7 @@
 				4B8A2DB720651C91005B9223 /* AppDelegate.swift */,
 				4B8A2DB920651C91005B9223 /* ViewController.swift */,
 				4B8A2DD720652AC5005B9223 /* VideoView.swift */,
+				4B8A2DDB2065502A005B9223 /* VideoTimelineView.swift */,
 				4B8A2DBB20651C91005B9223 /* Main.storyboard */,
 				4B8A2DBE20651C91005B9223 /* Assets.xcassets */,
 				4B8A2DC020651C91005B9223 /* LaunchScreen.storyboard */,
@@ -209,6 +212,7 @@
 				4B8A2DD820652AC5005B9223 /* VideoView.swift in Sources */,
 				4B8A2DBA20651C91005B9223 /* ViewController.swift in Sources */,
 				4B8A2DB820651C91005B9223 /* AppDelegate.swift in Sources */,
+				4B8A2DDC2065502A005B9223 /* VideoTimelineView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
