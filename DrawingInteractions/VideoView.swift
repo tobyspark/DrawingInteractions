@@ -28,5 +28,11 @@ class VideoView: UIView {
     override static var layerClass: AnyClass {
         return AVPlayerLayer.self
     }
+    
+    @IBAction func playPause(sender: UIGestureRecognizer) {
+        if let p = player {
+            p.rate = (p.rate != 0.0) ? 0.0 : 1.0
+        }
+    }
 
 }
