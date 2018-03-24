@@ -126,17 +126,20 @@ class VideoTimelineView: UIView {
     }
     
     private var initialCenter = CGPoint()
+    private var initialTime = CMTime()
     @objc private func panAction(_ gestureRecognizer : UIPanGestureRecognizer) {
         let translation = gestureRecognizer.translation(in: superview)
         if gestureRecognizer.state == .began {
             self.initialCenter = center
+            self.initialTime = time
         }
         if gestureRecognizer.state != .cancelled {
             // Pan view vertically
             let newCenter = CGPoint(x: initialCenter.x, y: initialCenter.y + translation.y)
             center = newCenter
             // Scrub video with horizontal movement
-            let newTime = CMTime(value: time.value + CMTimeValue(CGFloat(displayPeriod) * translation.x / displaySize.width), timescale: time.timescale)
+            let newTime = CMTime(value: initialTime.value - CMTimeValue(CGFloat(displayPeriod) * translation.x / displaySize.width), timescale: initialTime.timescale)
+            time = newTime
             delegate?.smoothSeek(to: newTime)
         }
         else {

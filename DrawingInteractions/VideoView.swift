@@ -55,11 +55,16 @@ class VideoView: UIView {
     // MARK: Methods
     
     func smoothSeek(to newChaseTime: CMTime) {
-        player?.pause()
-        if CMTimeCompare(newChaseTime, chaseTime) != 0 {
-            chaseTime = newChaseTime
-            if !isSeekInProgress {
-                seekToChaseTime()
+        if let p = player {
+            if (!isSeekInProgress) {
+                rateBeforeSeek = p.rate
+                p.rate = 0.0
+            }
+            if CMTimeCompare(newChaseTime, chaseTime) != 0 {
+                chaseTime = newChaseTime
+                if !isSeekInProgress {
+                    seekToChaseTime()
+                }
             }
         }
     }
@@ -75,12 +80,14 @@ class VideoView: UIView {
     private var playerObserver: Any?
     
     private var isSeekInProgress = false
+    private var rateBeforeSeek:Float = 0.0
     private var chaseTime = kCMTimeZero
     private func seekToChaseTime() {
         isSeekInProgress = true
         let seekTimeInProgress = chaseTime
         player?.seek(to: seekTimeInProgress, toleranceBefore: kCMTimeZero, toleranceAfter: kCMTimeZero, completionHandler: { [weak self] _ in
             if CMTimeCompare(seekTimeInProgress, self!.chaseTime) == 0 {
+                self?.player?.rate = self!.rateBeforeSeek
                 self?.isSeekInProgress = false
             }
             else {
