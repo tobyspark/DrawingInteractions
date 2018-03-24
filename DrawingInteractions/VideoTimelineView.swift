@@ -39,6 +39,7 @@ class VideoTimelineView: UIView {
             if time.timescale != oldValue.timescale {
                 os_log("Change in timebase. From: %d. To: %d", type: .debug, oldValue.timescale, time.timescale)
                 displayPeriod = CMTimeValue(time.timescale)
+                generator?.cancelAllCGImageGeneration()
             }
             updateImages()
             setNeedsDisplay()
@@ -107,8 +108,9 @@ class VideoTimelineView: UIView {
             }
 
             // TODO: Black frames, i.e. create keys but don't generate images for times before start, after end
+            let imageTimesToAddSorted = imageTimesToAdd.sorted()
             g.generateCGImagesAsynchronously(
-                forTimes: imageTimesToAdd.map { NSValue(time: CMTime(value: $0, timescale: time.timescale)) },
+                forTimes: imageTimesToAddSorted.map { NSValue(time: CMTime(value: $0, timescale: time.timescale)) },
                 completionHandler: { (requestedTime, image, actualTime, resultCode, error) in
                     if let i = image {
                         self.images[requestedTime.value] = i
