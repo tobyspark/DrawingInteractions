@@ -20,19 +20,14 @@ class VideoView: UIView {
         set {
             playerLayer.player = newValue
             
-            if let d = delegate {
-                let interval = playerLayer.player?.currentItem?.asset.tracks(withMediaType: .video).first?.minFrameDuration
+            if let d = delegate, let videoTrack = playerLayer.player?.currentItem?.asset.tracks(withMediaType: .video).first {
+                let timescale = videoTrack.naturalTimeScale
+                let interval = videoTrack.minFrameDuration
                 let mainQueue = DispatchQueue.main
                 playerObserver = playerLayer.player?.addPeriodicTimeObserver(
-                    forInterval: interval!,
+                    forInterval: interval,
                     queue: mainQueue,
-                    using: {
-                        [weak self] time in
-                        // The CMTime timescale changes when paused (!). This guards against updating with the erroneous values.
-                        if self?.player?.rate != 0.0 {
-                            d.time = time
-                        }
-                    }
+                    using: { d.time = CMTimeConvertScale($0, timescale, .roundHalfAwayFromZero) } // Emit a constant timescale, for sanity elsewhere
                 )
             }
         }

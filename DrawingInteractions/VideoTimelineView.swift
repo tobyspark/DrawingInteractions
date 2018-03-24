@@ -36,11 +36,6 @@ class VideoTimelineView: UIView {
     
     var time: CMTime {
         didSet {
-            if time.timescale != oldValue.timescale {
-                os_log("Change in timebase. From: %d. To: %d", type: .debug, oldValue.timescale, time.timescale)
-                displayPeriod = CMTimeValue(time.timescale)
-                generator?.cancelAllCGImageGeneration()
-            }
             updateImages()
             setNeedsDisplay()
         }
