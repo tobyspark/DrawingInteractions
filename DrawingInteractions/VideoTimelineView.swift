@@ -52,6 +52,9 @@ class VideoTimelineView: UIView {
         self.time = CMTime()
         self.displaySize = CGSize(width: frame.height, height: frame.height)
         super.init(frame: frame)
+        
+        let gestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(panAction))
+        self.addGestureRecognizer(gestureRecognizer)
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -117,6 +120,23 @@ class VideoTimelineView: UIView {
                         DispatchQueue.main.async(execute: { self.setNeedsDisplay() })
                     }
             })
+        }
+    }
+    
+    private var initialCenter = CGPoint()
+    @objc private func panAction(_ gestureRecognizer : UIPanGestureRecognizer) {
+        let translation = gestureRecognizer.translation(in: superview)
+        if gestureRecognizer.state == .began {
+            self.initialCenter = center
+        }
+        if gestureRecognizer.state != .cancelled {
+            // Add the translation to the view's original position.
+            let newCenter = CGPoint(x: initialCenter.x, y: initialCenter.y + translation.y)
+            center = newCenter
+        }
+        else {
+            // On cancellation, return the piece to its original location.
+            center = initialCenter
         }
     }
 }
