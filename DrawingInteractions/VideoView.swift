@@ -10,7 +10,9 @@ import UIKit
 import AVFoundation
 
 class VideoView: UIView {
-
+    
+    // MARK: Properties
+    
     var player: AVPlayer? {
         get {
             return playerLayer.player
@@ -19,12 +21,13 @@ class VideoView: UIView {
             playerLayer.player = newValue
             
             if let d = delegate {
-                print("Setting delegate")
-                let interval = CMTime(seconds: 0.1, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+                let interval = playerLayer.player?.currentItem?.asset.tracks(withMediaType: .video).first?.minFrameDuration
                 let mainQueue = DispatchQueue.main
-                playerObserver = playerLayer.player?.addPeriodicTimeObserver(forInterval: interval, queue: mainQueue, using: { time in
-                    d.time = time
-                })
+                playerObserver = playerLayer.player?.addPeriodicTimeObserver(
+                    forInterval: interval!,
+                    queue: mainQueue,
+                    using: { d.time = $0 }
+                )
             }
         }
     }
@@ -35,15 +38,18 @@ class VideoView: UIView {
     
     var delegate: VideoTimelineView?
     
-    // Override UIView property
-    override static var layerClass: AnyClass {
-        return AVPlayerLayer.self
-    }
+    // MARK: Methods
     
     @IBAction func playPause(sender: UIGestureRecognizer) {
         if let p = player {
             p.rate = (p.rate != 0.0) ? 0.0 : 1.0
         }
+    }
+    
+    // MARK: Overrides
+    
+    override static var layerClass: AnyClass {
+        return AVPlayerLayer.self
     }
     
     // MARK: Private
