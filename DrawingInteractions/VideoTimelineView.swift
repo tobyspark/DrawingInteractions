@@ -8,6 +8,7 @@
 
 import UIKit
 import AVFoundation
+import os.log
 
 class VideoTimelineView: UIView {
 
@@ -19,6 +20,8 @@ class VideoTimelineView: UIView {
         }
         set {
             if let videoTrack = newValue?.tracks(withMediaType: .video).first {
+                displayPeriod = CMTimeValue(videoTrack.naturalTimeScale)
+                
                 let aspectRatio = videoTrack.naturalSize.width / videoTrack.naturalSize.height
                 displaySize.width = displaySize.height * aspectRatio
                 imageCountOutwards = Int(((bounds.width*0.5) / displaySize.width).rounded(.up)) + 1
@@ -33,6 +36,10 @@ class VideoTimelineView: UIView {
     
     var time: CMTime {
         didSet {
+            if time.timescale != oldValue.timescale {
+                os_log("Change in timebase. From: %d. To: %d", type: .debug, oldValue.timescale, time.timescale)
+                displayPeriod = CMTimeValue(time.timescale)
+            }
             updateImages()
             setNeedsDisplay()
         }
@@ -78,9 +85,6 @@ class VideoTimelineView: UIView {
     
     private func updateImages() {
         if let g = generator {
-            // TODO: Set on asset set
-            displayPeriod = CMTimeValue(time.timescale)
-            
             let anchorTime = (time.value / displayPeriod) * displayPeriod
             let time0 = anchorTime - CMTimeValue(imageCountOutwards)*displayPeriod
             let imageTimesOld = Set(images.keys)
@@ -101,6 +105,7 @@ class VideoTimelineView: UIView {
             for t in imageTimesToAdd {
                 images.updateValue(nil, forKey: t)
             }
+
             // TODO: Black frames, i.e. create keys but don't generate images for times before start, after end
             g.generateCGImagesAsynchronously(
                 forTimes: imageTimesToAdd.map { NSValue(time: CMTime(value: $0, timescale: time.timescale)) },

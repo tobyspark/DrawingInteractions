@@ -26,7 +26,13 @@ class VideoView: UIView {
                 playerObserver = playerLayer.player?.addPeriodicTimeObserver(
                     forInterval: interval!,
                     queue: mainQueue,
-                    using: { d.time = $0 }
+                    using: {
+                        [weak self] time in
+                        // The CMTime timescale changes when paused (!). This guards against updating with the erroneous values.
+                        if self?.player?.rate != 0.0 {
+                            d.time = time
+                        }
+                    }
                 )
             }
         }
