@@ -137,7 +137,7 @@ class VideoTimelineView: UIView {
             center = newCenter
             // Scrub video with horizontal movement
             let newTime = CMTime(value: time.value + CMTimeValue(CGFloat(displayPeriod) * translation.x / displaySize.width), timescale: time.timescale)
-            delegate?.player?.seek(to: newTime)
+            delegate?.smoothSeek(to: newTime)
         }
         else {
             // On cancellation, return the piece to its original location.

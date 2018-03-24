@@ -52,6 +52,18 @@ class VideoView: UIView {
         }
     }
     
+    // MARK: Methods
+    
+    func smoothSeek(to newChaseTime: CMTime) {
+        player?.pause()
+        if CMTimeCompare(newChaseTime, chaseTime) != 0 {
+            chaseTime = newChaseTime
+            if !isSeekInProgress {
+                seekToChaseTime()
+            }
+        }
+    }
+    
     // MARK: Overrides
     
     override static var layerClass: AnyClass {
@@ -61,4 +73,19 @@ class VideoView: UIView {
     // MARK: Private
     
     private var playerObserver: Any?
+    
+    private var isSeekInProgress = false
+    private var chaseTime = kCMTimeZero
+    private func seekToChaseTime() {
+        isSeekInProgress = true
+        let seekTimeInProgress = chaseTime
+        player?.seek(to: seekTimeInProgress, toleranceBefore: kCMTimeZero, toleranceAfter: kCMTimeZero, completionHandler: { [weak self] _ in
+            if CMTimeCompare(seekTimeInProgress, self!.chaseTime) == 0 {
+                self?.isSeekInProgress = false
+            }
+            else {
+                self?.seekToChaseTime()
+            }
+        })
+    }
 }
