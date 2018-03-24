@@ -18,13 +18,16 @@ class VideoTimelineView: UIView {
             return nil
         }
         set {
-            generator = AVAssetImageGenerator(asset: newValue!)
-            let naturalSize = newValue?.tracks(withMediaType: .video).first?.naturalSize
-            let aspectRatio = naturalSize!.width / naturalSize!.height
-            displaySize.width = displaySize.height * aspectRatio
-            imageCountOutwards = Int(((bounds.width*0.5) / displaySize.width).rounded(.up)) + 1
-            // FIXME: This doesn't set the timeline on paused start
-            time = (newValue?.tracks(withMediaType: .video).first?.timeRange.start)!
+            if let videoTrack = newValue?.tracks(withMediaType: .video).first {
+                let aspectRatio = videoTrack.naturalSize.width / videoTrack.naturalSize.height
+                displaySize.width = displaySize.height * aspectRatio
+                imageCountOutwards = Int(((bounds.width*0.5) / displaySize.width).rounded(.up)) + 1
+                
+                generator = AVAssetImageGenerator(asset: newValue!)
+                generator?.maximumSize = displaySize
+                
+                time = videoTrack.timeRange.start
+            }
         }
     }
     
@@ -104,6 +107,7 @@ class VideoTimelineView: UIView {
                 completionHandler: { (requestedTime, image, actualTime, resultCode, error) in
                     if let i = image {
                         self.images[requestedTime.value] = i
+                        DispatchQueue.main.async(execute: { self.setNeedsDisplay() })
                     }
             })
         }
