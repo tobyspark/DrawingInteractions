@@ -55,8 +55,11 @@ class VideoTimelineView: UIView {
         self.displaySize = CGSize(width: frame.height, height: frame.height)
         super.init(frame: frame)
         
-        let gestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(panAction))
-        self.addGestureRecognizer(gestureRecognizer)
+        let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(panAction))
+        self.addGestureRecognizer(panGestureRecognizer)
+        
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(tapAction))
+        self.addGestureRecognizer(tapGestureRecognizer)
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -127,7 +130,7 @@ class VideoTimelineView: UIView {
     
     private var initialCenter = CGPoint()
     private var initialTime = CMTime()
-    @objc private func panAction(_ gestureRecognizer : UIPanGestureRecognizer) {
+    @objc private func panAction(_ gestureRecognizer: UIPanGestureRecognizer) {
         let translation = gestureRecognizer.translation(in: superview)
         if gestureRecognizer.state == .began {
             self.initialCenter = center
@@ -145,6 +148,14 @@ class VideoTimelineView: UIView {
         else {
             // On cancellation, return the piece to its original location.
             center = initialCenter
+        }
+    }
+    
+    @objc private func tapAction(_ gestureRecognizer: UITapGestureRecognizer) {
+        if gestureRecognizer.state == .ended {
+            print("tap timeline")
+            // this will jump to this point in the timeline.
+            // but also, swallow the event so the video view doesn't get it and pause while we're dragging
         }
     }
 }

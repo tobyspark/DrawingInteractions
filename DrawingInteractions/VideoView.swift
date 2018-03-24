@@ -47,13 +47,12 @@ class VideoView: UIView {
     // MARK: Methods
     
     @IBAction func playPause(sender: UIGestureRecognizer) {
+        print("tap videoview")
         if let p = player {
             p.rate = (p.rate != 0.0) ? 0.0 : 1.0
         }
     }
-    
-    // MARK: Methods
-    
+
     func smoothSeek(to newChaseTime: CMTime) {
         if let p = player {
             if (!isSeekInProgress) {
