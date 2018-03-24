@@ -46,6 +46,8 @@ class VideoTimelineView: UIView {
         }
     }
     
+    var delegate: VideoView?
+    
     // MARK: Overrides
     
     override init(frame: CGRect) {
@@ -130,9 +132,12 @@ class VideoTimelineView: UIView {
             self.initialCenter = center
         }
         if gestureRecognizer.state != .cancelled {
-            // Add the translation to the view's original position.
+            // Pan view vertically
             let newCenter = CGPoint(x: initialCenter.x, y: initialCenter.y + translation.y)
             center = newCenter
+            // Scrub video with horizontal movement
+            let newTime = CMTime(value: time.value + CMTimeValue(CGFloat(displayPeriod) * translation.x / displaySize.width), timescale: time.timescale)
+            delegate?.player?.seek(to: newTime)
         }
         else {
             // On cancellation, return the piece to its original location.

@@ -35,6 +35,7 @@ class ViewController: UIViewController {
             height: stripHeight
             )
         let timelineView = VideoTimelineView(frame: strip)
+        timelineView.delegate = videoView
         videoView.delegate = timelineView
         
         videoView.player = AVPlayer(url: movieURL)
