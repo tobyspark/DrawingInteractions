@@ -118,10 +118,9 @@ class VideoTimelineView: UIView {
                 images.updateValue(nil, forKey: t)
             }
 
-            // TODO: Black frames, i.e. create keys but don't generate images for times before start, after end
-            let imageTimesToAddSorted = imageTimesToAdd.sorted()
+            let imageTimesToGet = imageTimesToAdd.filter { CMTimeRangeContainsTime(timeRange, CMTime(value:$0, timescale: time.timescale)) }
             g.generateCGImagesAsynchronously(
-                forTimes: imageTimesToAddSorted.map { NSValue(time: CMTime(value: $0, timescale: time.timescale)) },
+                forTimes: imageTimesToGet.sorted().map { NSValue(time: CMTime(value: $0, timescale: time.timescale)) },
                 completionHandler: { (requestedTime, image, actualTime, resultCode, error) in
                     if let i = image {
                         self.images[requestedTime.value] = i
