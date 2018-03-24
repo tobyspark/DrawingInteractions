@@ -67,13 +67,18 @@ class VideoTimelineView: UIView {
             let offsetPoints = offsetNormalised * displaySize.width
             let imageTimeSequence = images.keys.sorted()
             for (i, t) in imageTimeSequence.enumerated() {
+                let rect = CGRect(
+                    x: -offsetPoints + CGFloat(i) * displaySize.width,
+                    y: 0,
+                    width: displaySize.width,
+                    height: displaySize.height
+                )
                 if let image = images[t]! {
-                    context.draw(image, in: CGRect(
-                        x: -offsetPoints + CGFloat(i) * displaySize.width,
-                        y: 0,
-                        width: displaySize.width,
-                        height: displaySize.height
-                        ))
+                    context.draw(image, in: rect)
+                }
+                else {
+                    context.setFillColor(UIColor.black.cgColor)
+                    context.fill(rect)
                 }
             }
         }
