@@ -52,6 +52,8 @@ class VideoTimelineView: UIView {
         self.displaySize = CGSize(width: frame.height, height: frame.height)
         super.init(frame: frame)
         
+        layer.isGeometryFlipped = true // FIXME: This is probably a hack specific to the test video. How to test and set appropriately?
+        
         let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(panAction))
         self.addGestureRecognizer(panGestureRecognizer)
         
