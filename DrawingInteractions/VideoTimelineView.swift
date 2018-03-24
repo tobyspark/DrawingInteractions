@@ -21,6 +21,7 @@ class VideoTimelineView: UIView {
         set {
             if let videoTrack = newValue?.tracks(withMediaType: .video).first {
                 displayPeriod = CMTimeValue(videoTrack.naturalTimeScale)
+                timeRange = videoTrack.timeRange
                 
                 let aspectRatio = videoTrack.naturalSize.width / videoTrack.naturalSize.height
                 displaySize.width = displaySize.height * aspectRatio
@@ -36,6 +37,7 @@ class VideoTimelineView: UIView {
     
     var time: CMTime {
         didSet {
+            time = CMTimeClampToRange(time, timeRange)
             updateImages()
             setNeedsDisplay()
         }
@@ -91,6 +93,7 @@ class VideoTimelineView: UIView {
     private var displaySize = CGSize()
     private var displayPeriod = CMTimeValue(1)
     private var imageCountOutwards = 1
+    private var timeRange = CMTimeRange()
     
     private func updateImages() {
         if let g = generator {
