@@ -13,6 +13,27 @@ class VideoView: UIView {
     
     // MARK: Properties
     
+    var time: CMTime {
+        get {
+            return player?.currentTime() ?? kCMTimeZero
+        }
+        set {
+            // Smooth seek
+            if let p = player {
+                if (!isSeekInProgress) {
+                    rateBeforeSeek = p.rate
+                    p.rate = 0.0
+                }
+                if CMTimeCompare(newValue, chaseTime) != 0 {
+                    chaseTime = newValue
+                    if !isSeekInProgress {
+                        seekToChaseTime()
+                    }
+                }
+            }
+        }
+    }
+    
     var player: AVPlayer? {
         get {
             return playerLayer.player
@@ -45,21 +66,6 @@ class VideoView: UIView {
         print("tap videoview")
         if let p = player {
             p.rate = (p.rate != 0.0) ? 0.0 : 1.0
-        }
-    }
-
-    func smoothSeek(to newChaseTime: CMTime) {
-        if let p = player {
-            if (!isSeekInProgress) {
-                rateBeforeSeek = p.rate
-                p.rate = 0.0
-            }
-            if CMTimeCompare(newChaseTime, chaseTime) != 0 {
-                chaseTime = newChaseTime
-                if !isSeekInProgress {
-                    seekToChaseTime()
-                }
-            }
         }
     }
     

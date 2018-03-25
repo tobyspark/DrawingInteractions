@@ -198,7 +198,7 @@ class VideoTimelineView: UIView {
             // Scrub video with horizontal movement
             let newTime = CMTime(value: initialTime.value - CMTimeValue(CGFloat(displayPeriod) * translation.x / displaySize.width), timescale: initialTime.timescale)
             time = newTime
-            delegate?.smoothSeek(to: newTime)
+            delegate?.time = newTime
         }
         else {
             // On cancellation, return the piece to its original location.
@@ -211,7 +211,7 @@ class VideoTimelineView: UIView {
         // Set time to the timeline time at the tapped point
         if gestureRecognizer.state == .ended {
             let newTime = timeAt(x: gestureRecognizer.location(in: superview).x)
-            delegate?.smoothSeek(to: newTime)
+            delegate?.time = newTime
         }
     }
 }
