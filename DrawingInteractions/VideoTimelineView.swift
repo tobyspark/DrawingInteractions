@@ -211,7 +211,13 @@ class VideoTimelineView: UIView {
         // Set time to the timeline time at the tapped point
         if gestureRecognizer.state == .ended {
             let newTime = timeAt(x: gestureRecognizer.location(in: superview).x)
-            delegate?.time = newTime
+            // ...perchance to dream.
+            //UIView.animate(
+            //    withDuration: 0.5,
+            //    animations: { self.delegate?.time = newTime }
+            //)
+            // ...so DIY
+            self.delegate?.scrub(to: newTime, withDuration: 0.5)
         }
     }
 }

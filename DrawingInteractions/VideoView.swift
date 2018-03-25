@@ -69,6 +69,29 @@ class VideoView: UIView {
         }
     }
     
+    // Ideally, there would be a CAAnimation-like way of animating the `time` property
+    // Without, here is the DIY ugliness.
+    func scrub(to newTime:CMTime, withDuration duration:TimeInterval) {
+        let startDate = Date()
+        let startTime = time
+        let timeDelta = newTime - startTime
+        if let t = scrubTimer {
+            t.invalidate()
+        }
+        scrubTimer = Timer.scheduledTimer(withTimeInterval: 1.0/60.0, repeats: true) { (timer) in
+            let progress = -startDate.timeIntervalSinceNow / duration
+            if progress > 1.0 {
+                timer.invalidate()
+            }
+            let easedProgress = sin(progress*Double.pi/2.0)
+            self.time = startTime + CMTime(
+                value: CMTimeValue(easedProgress*Double(timeDelta.value)),
+                timescale: timeDelta.timescale
+            )
+        }
+    }
+    private var scrubTimer:Timer?
+    
     // MARK: Overrides
     
     override static var layerClass: AnyClass {
