@@ -43,6 +43,11 @@ class VideoTimelineView: UIView {
         }
     }
     
+    func boundsDidChange() {
+        updateImages()
+        setNeedsDisplay()
+    }
+    
     var delegate: VideoView?
     
     // MARK: Overrides
