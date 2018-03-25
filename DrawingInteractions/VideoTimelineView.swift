@@ -14,6 +14,10 @@ class VideoTimelineView: UIView {
 
     // MARK: Properties
     
+    let videoIsFlipped = true
+    
+    let textAttributes:[NSAttributedStringKey: Any] = [.foregroundColor: UIColor.white]
+    
     var asset: AVAsset? {
         get {
             return nil
@@ -25,7 +29,6 @@ class VideoTimelineView: UIView {
                 
                 let aspectRatio = videoTrack.naturalSize.width / videoTrack.naturalSize.height
                 displaySize.width = displaySize.height * aspectRatio
-                imageCountOutwards = Int(((bounds.width*0.5) / displaySize.width).rounded(.up)) + 1
                 
                 generator = AVAssetImageGenerator(asset: newValue!)
                 generator?.maximumSize = displaySize
@@ -57,8 +60,6 @@ class VideoTimelineView: UIView {
         self.displaySize = CGSize(width: frame.height, height: frame.height)
         super.init(frame: frame)
         
-        layer.isGeometryFlipped = true // FIXME: This is probably a hack specific to the test video. How to test and set appropriately?
-        
         let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(panAction))
         self.addGestureRecognizer(panGestureRecognizer)
         
@@ -75,20 +76,40 @@ class VideoTimelineView: UIView {
             let offsetNormalised = CGFloat(time.value % displayPeriod) / CGFloat(displayPeriod)
             let offsetPoints = offsetNormalised * displaySize.width
             let imageTimeSequence = images.keys.sorted()
+            
+            // Draw video frames
+            if videoIsFlipped {
+                context.saveGState()
+                context.translateBy(x: 0.0, y: displaySize.height)
+                context.scaleBy(x: 1.0, y: -1.0)
+            }
             for (i, t) in imageTimeSequence.enumerated() {
-                let rect = CGRect(
+                let imageRect = CGRect(
                     x: -offsetPoints + CGFloat(i) * displaySize.width,
                     y: 0,
                     width: displaySize.width,
                     height: displaySize.height
                 )
                 if let image = images[t]! {
-                    context.draw(image, in: rect)
+                    context.draw(image, in: imageRect)
                 }
                 else {
                     context.setFillColor(UIColor.black.cgColor)
-                    context.fill(rect)
+                    context.fill(imageRect)
                 }
+            }
+            if videoIsFlipped {
+                context.restoreGState()
+            }
+            
+            // Draw timestamps
+            for (i, t) in imageTimeSequence.enumerated() {
+                let textPoint = CGPoint(
+                    x: -offsetPoints + CGFloat(i) * displaySize.width,
+                    y: displaySize.height/2.0 - 6
+                )
+                let secs = Double(t) / Double(time.timescale)
+                ("\(secs)" as NSString).draw(at:textPoint, withAttributes: textAttributes)
             }
         }
     }
@@ -99,11 +120,11 @@ class VideoTimelineView: UIView {
     private var images: [CMTimeValue:CGImage?] = [:]
     private var displaySize = CGSize()
     private var displayPeriod = CMTimeValue(1)
-    private var imageCountOutwards = 1
     private var timeRange = CMTimeRange()
     
     private func updateImages() {
         if let g = generator {
+            let imageCountOutwards = Int(((bounds.width*0.5) / displaySize.width).rounded(.up)) + 1
             let anchorTime = (time.value / displayPeriod) * displayPeriod
             let time0 = anchorTime - CMTimeValue(imageCountOutwards)*displayPeriod
             let imageTimesOld = Set(images.keys)
@@ -157,6 +178,7 @@ class VideoTimelineView: UIView {
         else {
             // On cancellation, return the piece to its original location.
             center = initialCenter
+            time = initialTime
         }
     }
     
