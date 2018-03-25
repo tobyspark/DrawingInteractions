@@ -15,7 +15,7 @@ class VideoTimelineView: UIView {
     // MARK: Properties
     
     let videoIsFlipped = true
-    
+    let nowMarkerDiameter:CGFloat = 12
     let textAttributes:[NSAttributedStringKey: Any] = [.foregroundColor: UIColor.white]
     
     var asset: AVAsset? {
@@ -73,19 +73,15 @@ class VideoTimelineView: UIView {
     
     override func draw(_ rect: CGRect) {
         if let context = UIGraphicsGetCurrentContext() {
-            let offsetNormalised = CGFloat(time.value % displayPeriod) / CGFloat(displayPeriod)
-            let offsetPoints = offsetNormalised * displaySize.width
-            let imageTimeSequence = images.keys.sorted()
-            
             // Draw video frames
             if videoIsFlipped {
                 context.saveGState()
                 context.translateBy(x: 0.0, y: displaySize.height)
                 context.scaleBy(x: 1.0, y: -1.0)
             }
-            for (i, t) in imageTimeSequence.enumerated() {
+            for t in images.keys {
                 let imageRect = CGRect(
-                    x: -offsetPoints + CGFloat(i) * displaySize.width,
+                    x: xAt(time: t),
                     y: 0,
                     width: displaySize.width,
                     height: displaySize.height
@@ -103,14 +99,23 @@ class VideoTimelineView: UIView {
             }
             
             // Draw timestamps
-            for (i, t) in imageTimeSequence.enumerated() {
+            for t in images.keys {
                 let textPoint = CGPoint(
-                    x: -offsetPoints + CGFloat(i) * displaySize.width,
+                    x: xAt(time: t),
                     y: displaySize.height/2.0 - 6
                 )
                 let secs = Double(t) / Double(time.timescale)
                 ("\(secs)" as NSString).draw(at:textPoint, withAttributes: textAttributes)
             }
+            
+            // Draw 'now' marker
+            context.setFillColor(gray: 1.0, alpha: 1.0)
+            context.fillEllipse(in: CGRect(
+                x: bounds.midX - nowMarkerDiameter/2.0,
+                y: bounds.midY - nowMarkerDiameter/2.0,
+                width: nowMarkerDiameter,
+                height: nowMarkerDiameter
+            ))
         }
     }
 
@@ -158,6 +163,26 @@ class VideoTimelineView: UIView {
         }
     }
     
+    private func timeAt(x: CGFloat) -> CMTime {
+        let timePerPoint = CGFloat(displayPeriod) / displaySize.width
+        let xOffset = x - bounds.midX
+        let timeOffset = CMTimeValue(xOffset * timePerPoint)
+        return CMTime(value: time.value + timeOffset, timescale: time.timescale)
+    }
+    
+    private func xAt(time xTime:CMTimeValue) -> CGFloat {
+        return xAt(time: CMTime(value: xTime, timescale: time.timescale))
+    }
+    
+    private func xAt(time xTime:CMTime) -> CGFloat {
+        guard time.timescale == xTime.timescale else
+        { fatalError("Inconsistent timescale encountered") }
+        let timePerPoint = CGFloat(displayPeriod) / displaySize.width
+        let timeOffset = xTime.value - time.value
+        let pointsOffset = CGFloat(timeOffset) / timePerPoint
+        return bounds.midX + pointsOffset
+    }
+    
     private var initialCenter = CGPoint()
     private var initialTime = CMTime()
     @objc private func panAction(_ gestureRecognizer: UIPanGestureRecognizer) {
@@ -183,10 +208,10 @@ class VideoTimelineView: UIView {
     }
     
     @objc private func tapAction(_ gestureRecognizer: UITapGestureRecognizer) {
+        // Set time to the timeline time at the tapped point
         if gestureRecognizer.state == .ended {
-            print("tap timeline")
-            // this will jump to this point in the timeline.
-            // but also, swallow the event so the video view doesn't get it and pause while we're dragging
+            let newTime = timeAt(x: gestureRecognizer.location(in: superview).x)
+            delegate?.smoothSeek(to: newTime)
         }
     }
 }
