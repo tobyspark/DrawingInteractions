@@ -18,29 +18,17 @@ class VideoTimelineView: UIView {
     let nowMarkerDiameter:CGFloat = 12
     let textAttributes:[NSAttributedStringKey: Any] = [.foregroundColor: UIColor.white]
     
-    var asset: AVAsset? {
-        get {
-            return nil
-        }
-        set {
-            if let videoTrack = newValue?.tracks(withMediaType: .video).first {
-                displayPeriod = CMTimeValue(videoTrack.naturalTimeScale)
-                timeRange = videoTrack.timeRange
-                
-                let aspectRatio = videoTrack.naturalSize.width / videoTrack.naturalSize.height
-                displaySize.width = displaySize.height * aspectRatio
-                
-                generator = AVAssetImageGenerator(asset: newValue!)
-                generator?.maximumSize = displaySize
-                
-                time = videoTrack.timeRange.start
-            }
-        }
+    func setVideoTrack(_ track: AVAssetTrack) {
+        let aspectRatio = track.naturalSize.width / track.naturalSize.height
+        displaySize.width = displaySize.height * aspectRatio
+        displayPeriod = CMTimeValue(track.naturalTimeScale) // i.e. 1 sec per filmstrip cell
+        timeRange = track.timeRange
+        generator = AVAssetImageGenerator(asset: track.asset!)
+        generator?.maximumSize = displaySize
     }
     
     var time: CMTime {
         didSet {
-            time = CMTimeClampToRange(time, timeRange)
             updateImages()
             setNeedsDisplay()
         }
@@ -51,7 +39,7 @@ class VideoTimelineView: UIView {
         setNeedsDisplay()
     }
     
-    var delegate: VideoView?
+    var delegate: ViewController?
     
     // MARK: Overrides
     
@@ -198,7 +186,7 @@ class VideoTimelineView: UIView {
             // Scrub video with horizontal movement
             let newTime = CMTime(value: initialTime.value - CMTimeValue(CGFloat(displayPeriod) * translation.x / displaySize.width), timescale: initialTime.timescale)
             time = newTime
-            delegate?.time = newTime
+            delegate?.desiredTime = newTime
         }
         else {
             // On cancellation, return the piece to its original location.

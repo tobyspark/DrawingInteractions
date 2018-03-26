@@ -24,10 +24,10 @@ class VideoView: UIView {
                     rateBeforeSeek = p.rate
                     p.rate = 0.0
                 }
-                if CMTimeCompare(newValue, chaseTime) != 0 {
-                    chaseTime = newValue
+                if CMTimeCompare(newValue, desiredTime) != 0 {
+                    desiredTime = newValue
                     if !isSeekInProgress {
-                        seekToChaseTime()
+                        seekToDesiredTime()
                     }
                 }
             }
@@ -58,7 +58,7 @@ class VideoView: UIView {
         return layer as! AVPlayerLayer
     }
     
-    var delegate: VideoTimelineView?
+    var delegate: ViewController?
     
     // MARK: Methods
     
@@ -69,28 +69,7 @@ class VideoView: UIView {
         }
     }
     
-    // Ideally, there would be a CAAnimation-like way of animating the `time` property
-    // Without, here is the DIY ugliness.
-    func scrub(to newTime:CMTime, withDuration duration:TimeInterval) {
-        let startDate = Date()
-        let startTime = time
-        let timeDelta = newTime - startTime
-        if let t = scrubTimer {
-            t.invalidate()
-        }
-        scrubTimer = Timer.scheduledTimer(withTimeInterval: 1.0/60.0, repeats: true) { (timer) in
-            let progress = -startDate.timeIntervalSinceNow / duration
-            if progress > 1.0 {
-                timer.invalidate()
-            }
-            let easedProgress = sin(progress*Double.pi/2.0)
-            self.time = startTime + CMTime(
-                value: CMTimeValue(easedProgress*Double(timeDelta.value)),
-                timescale: timeDelta.timescale
-            )
-        }
-    }
-    private var scrubTimer:Timer?
+
     
     // MARK: Overrides
     
@@ -104,17 +83,17 @@ class VideoView: UIView {
     
     private var isSeekInProgress = false
     private var rateBeforeSeek:Float = 0.0
-    private var chaseTime = kCMTimeZero
-    private func seekToChaseTime() {
+    var desiredTime = kCMTimeZero
+    private func seekToDesiredTime() {
         isSeekInProgress = true
-        let seekTimeInProgress = chaseTime
+        let seekTimeInProgress = desiredTime
         player?.seek(to: seekTimeInProgress, toleranceBefore: kCMTimeZero, toleranceAfter: kCMTimeZero, completionHandler: { [weak self] _ in
-            if CMTimeCompare(seekTimeInProgress, self!.chaseTime) == 0 {
+            if CMTimeCompare(seekTimeInProgress, self!.desiredTime) == 0 {
                 self?.player?.rate = self!.rateBeforeSeek
                 self?.isSeekInProgress = false
             }
             else {
-                self?.seekToChaseTime()
+                self?.seekToDesiredTime()
             }
         })
     }
