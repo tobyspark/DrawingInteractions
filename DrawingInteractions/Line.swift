@@ -113,7 +113,7 @@ class Line: NSObject {
             }
 
             // This color will used by default for `.Standard` touches.
-            var color = UIColor.black
+            var color = UIColor.white
 
             let pointType = point.pointType
             if isDebuggingEnabled {
@@ -147,6 +147,7 @@ class Line: NSObject {
             let location = usePreciseLocation ? point.preciseLocation : point.location
             let priorLocation = usePreciseLocation ? priorPoint.preciseLocation : priorPoint.location
 
+            context.setShadow(offset: CGSize(width: 0, height: 0), blur: 2, color: UIColor(white: 0, alpha: 0.5).cgColor)
             context.setStrokeColor(color.cgColor)
 
             context.beginPath()
