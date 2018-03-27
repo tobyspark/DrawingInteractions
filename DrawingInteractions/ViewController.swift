@@ -31,8 +31,20 @@ class ViewController: UIViewController {
     var time = kCMTimeZero {
         willSet {
             // Save static drawing, clear canvas
-            if canvasView.finishedLines.count > 0 {
-                staticDrawings[time.value] = canvasView.finishedLines
+            let newCount = canvasView.finishedLines.count
+            if newCount > 0 {
+                if let oldCount = staticDrawings[time.value]?.count {
+                    // The lines have changed, update and invalidate cache
+                    if oldCount != newCount {
+                        staticDrawings[time.value] = canvasView.finishedLines
+                        staticDrawingsImaged.removeValue(forKey: time.value)
+                    }
+                    // The lines have not changed, do nothing
+                }
+                else {
+                    // There is a new drawing
+                    staticDrawings[time.value] = canvasView.finishedLines
+                }
                 canvasView.clear()
             }
         }
