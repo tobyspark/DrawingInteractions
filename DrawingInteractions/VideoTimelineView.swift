@@ -213,13 +213,12 @@ class VideoTimelineView: UIView {
             center = newCenter
             // Scrub video with horizontal movement
             let newTime = CMTime(value: initialTime.value - CMTimeValue(CGFloat(displayPeriod) * translation.x / displaySize.width), timescale: initialTime.timescale)
-            time = newTime
             delegate?.desiredTime = newTime
         }
         else {
             // On cancellation, return the piece to its original location.
             center = initialCenter
-            time = initialTime
+            delegate?.desiredTime = initialTime
         }
     }
     
@@ -240,7 +239,7 @@ class VideoTimelineView: UIView {
             //    animations: { self.delegate?.time = newTime }
             //)
             // ...so DIY
-            self.delegate?.scrub(to: newTime, withDuration: 0.5)
+            delegate?.scrub(to: newTime, withDuration: 0.5)
         }
     }
 }
