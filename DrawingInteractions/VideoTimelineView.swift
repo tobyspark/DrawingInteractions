@@ -67,14 +67,14 @@ class VideoTimelineView: UIView {
                 context.translateBy(x: 0.0, y: displaySize.height)
                 context.scaleBy(x: 1.0, y: -1.0)
             }
-            for t in images.keys {
+            for t in frames.keys {
                 let imageRect = CGRect(
                     x: xAt(time: t),
                     y: 0,
                     width: displaySize.width,
                     height: displaySize.height
                 )
-                if let image = images[t]! {
+                if let image = frames[t]! {
                     context.draw(image, in: imageRect)
                 }
                 else {
@@ -86,8 +86,23 @@ class VideoTimelineView: UIView {
                 context.restoreGState()
             }
             
+            // Draw drawings
+            for t in drawings.keys {
+                let x = xAt(time: t)
+                let tickPath = [CGPoint(x:x,y:0), CGPoint(x:x,y:displaySize.height)]
+                context.setStrokeColor(gray: 1.0, alpha: 1.0)
+                context.strokeLineSegments(between: tickPath)
+                let imageRect = CGRect(
+                    x: x - displaySize.width/2,
+                    y: 0,
+                    width: displaySize.width,
+                    height: displaySize.height
+                )
+                context.draw(drawings[t]!, in: imageRect)
+            }
+            
             // Draw timestamps
-            for t in images.keys {
+            for t in frames.keys {
                 let textPoint = CGPoint(
                     x: xAt(time: t),
                     y: displaySize.height/2.0 - 6
@@ -110,33 +125,36 @@ class VideoTimelineView: UIView {
     // MARK: Private
     
     private var generator: AVAssetImageGenerator?
-    private var images: [CMTimeValue:CGImage?] = [:]
+    private var frames: [CMTimeValue:CGImage?] = [:]
+    private var drawings: [CMTimeValue: CGImage] = [:]
     private var displaySize = CGSize()
     private var displayPeriod = CMTimeValue(1)
     private var timeRange = CMTimeRange()
     
     private func updateImages() {
+        let imageCountOutwards = Int(((bounds.width*0.5) / displaySize.width).rounded(.up)) + 1
+        let anchorTime = (time.value / displayPeriod) * displayPeriod
+        let timeMin = anchorTime - CMTimeValue(imageCountOutwards)*displayPeriod
+        let timeMax = anchorTime + CMTimeValue(imageCountOutwards)*displayPeriod
+        // frames, e.g. filmstrip cells
         if let g = generator {
-            let imageCountOutwards = Int(((bounds.width*0.5) / displaySize.width).rounded(.up)) + 1
-            let anchorTime = (time.value / displayPeriod) * displayPeriod
-            let time0 = anchorTime - CMTimeValue(imageCountOutwards)*displayPeriod
-            let imageTimesOld = Set(images.keys)
+            let imageTimesOld = Set(frames.keys)
             let imageTimesNew:Set<CMTimeValue> = {
                 var times = Set<CMTimeValue>()
                 for i in 0..<imageCountOutwards*2 {
-                    times.insert(time0 + CMTimeValue(i)*displayPeriod)
+                    times.insert(timeMin + CMTimeValue(i)*displayPeriod)
                 }
                 return times
             }()
             
             let imageTimesToRemove = imageTimesOld.subtracting(imageTimesNew)
             for t in imageTimesToRemove {
-                images.removeValue(forKey: t)
+                frames.removeValue(forKey: t)
             }
             
             let imageTimesToAdd = imageTimesNew.subtracting(imageTimesOld)
             for t in imageTimesToAdd {
-                images.updateValue(nil, forKey: t)
+                frames.updateValue(nil, forKey: t)
             }
 
             let imageTimesToGet = imageTimesToAdd.filter { CMTimeRangeContainsTime(timeRange, CMTime(value:$0, timescale: time.timescale)) }
@@ -144,10 +162,19 @@ class VideoTimelineView: UIView {
                 forTimes: imageTimesToGet.sorted().map { NSValue(time: CMTime(value: $0, timescale: time.timescale)) },
                 completionHandler: { (requestedTime, image, actualTime, resultCode, error) in
                     if let i = image {
-                        self.images[requestedTime.value] = i
+                        self.frames[requestedTime.value] = i
                         DispatchQueue.main.async(execute: { self.setNeedsDisplay() })
                     }
             })
+        }
+        // drawings
+        if let d = delegate {
+            let drawingTimes = d.staticDrawings.keys.filter({ $0 >= timeMin && $0 <= timeMax })
+            for time in drawingTimes {
+                if let drawing = d.staticDrawingAt(time: CMTime(value: time, timescale:timeRange.start.timescale)) {
+                    drawings[time] = drawing.image.cropping(to:CGRect(origin: CGPoint(x:0, y:0), size: displaySize))
+                }
+            }
         }
     }
     
