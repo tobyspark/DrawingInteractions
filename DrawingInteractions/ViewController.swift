@@ -127,14 +127,17 @@ class ViewController: UIViewController {
         }
         scrubTimer = Timer.scheduledTimer(withTimeInterval: 1.0/60.0, repeats: true) { (timer) in
             let progress = -startDate.timeIntervalSinceNow / duration
-            if progress > 1.0 {
+            if progress < 1.0 {
+                let easedProgress = sin(progress*Double.pi/2.0)
+                self.desiredTime = startTime + CMTime(
+                    value: CMTimeValue(easedProgress*Double(timeDelta.value)),
+                    timescale: timeDelta.timescale
+                )
+            }
+            else {
+                self.desiredTime = newTime
                 timer.invalidate()
             }
-            let easedProgress = sin(progress*Double.pi/2.0)
-            self.desiredTime = startTime + CMTime(
-                value: CMTimeValue(easedProgress*Double(timeDelta.value)),
-                timescale: timeDelta.timescale
-            )
         }
     }
     private var scrubTimer:Timer?
