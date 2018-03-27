@@ -13,11 +13,11 @@ class ViewController: UIViewController {
     
     // MARK: Properties
     
-    var staticDrawings:[CMTimeValue:[Line]] = [:]
-    var staticDrawingsImaged:[CMTimeValue:CGImage] = [:]
-    
     let movie = (name:"testvideo", ext:"mov")
     let stripHeight:CGFloat = 44
+    
+    // The annotations
+    var annotations = Annotations()
     
     // The time any component wants the video to be at
     var desiredTime = kCMTimeZero {
@@ -33,67 +33,32 @@ class ViewController: UIViewController {
             // Save static drawing, clear canvas
             let newCount = canvasView.finishedLines.count
             if newCount > 0 {
-                if let oldCount = staticDrawings[time.value]?.count {
+                if let oldCount = annotations.staticDrawings[time.value]?.count {
                     // The lines have changed, update and invalidate cache
                     if oldCount != newCount {
-                        staticDrawings[time.value] = canvasView.finishedLines
-                        staticDrawingsImaged.removeValue(forKey: time.value)
+                        annotations.staticDrawings[time.value] = canvasView.finishedLines
+                        annotations.staticDrawingsFullFrame.removeValue(forKey: time.value)
                     }
                     // The lines have not changed, do nothing
                 }
                 else {
                     // There is a new drawing
-                    staticDrawings[time.value] = canvasView.finishedLines
+                    annotations.staticDrawings[time.value] = canvasView.finishedLines
                 }
-                canvasView.clear()
             }
+            canvasView.clear()
         }
         didSet {
             // Propogate time amongst views
             timelineView.time = time
             // Load static drawing
-            if let d = staticDrawingAt(time: time) {
+            if let d = annotations.staticDrawingAt(time: time) {
                 canvasView.finishedLines = d.lines
-                canvasView.frozenImage = d.image
+                canvasView.frozenImage = d.fullImage
+                canvasView.needsFullRedraw = true
                 canvasView.setNeedsDisplay()
             }
         }
-    }
-    
-    /// A `CGContext` for drawing the last representation of lines no longer receiving updates into.
-    lazy var lineContext: CGContext = {
-        let scale = view.window!.screen.scale
-        var size = view.bounds.size
-        
-        size.width *= scale
-        size.height *= scale
-        let colorSpace = CGColorSpaceCreateDeviceRGB()
-        
-        let context: CGContext = CGContext.init(data: nil, width: Int(size.width), height: Int(size.height), bitsPerComponent: 8, bytesPerRow: 0, space: colorSpace, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
-        
-        context.setLineCap(.round)
-        let transform = CGAffineTransform.init(scaleX:scale, y: scale)
-        context.concatenate(transform)
-        
-        return context
-    }()
-    func staticDrawingAt(time: CMTime) -> (lines: [Line], image: CGImage)? {
-        guard let lines = staticDrawings[time.value] else {
-            return nil
-        }
-        if staticDrawingsImaged.index(forKey: time.value) == nil {
-            lineContext.clear(view.bounds)
-            for line in lines {
-                line.drawCommitedPointsInContext(context: lineContext, isDebuggingEnabled: false, usePreciseLocation: true)
-            }
-            if let image = lineContext.makeImage() {
-                staticDrawingsImaged[time.value] = image
-            }
-            else {
-                return nil
-            }
-        }
-        return (lines, staticDrawingsImaged[time.value]!)
     }
     
     var timeBounds = kCMTimeRangeZero
@@ -113,6 +78,15 @@ class ViewController: UIViewController {
             timelineView.setVideoTrack(track)
             videoView.player = player
             time = track.timeRange.start
+            annotations.fullFrameSize = videoSize
+            annotations.thumbnailSize = timelineView.displaySize
+            annotations.screenScale = view.contentScaleFactor
+            
+            // FIXME
+            let hackHeight = videoView.frame.width / videoSize.width * videoSize.height
+            let hackY = (videoView.frame.height - hackHeight) / 2
+            canvasView.frame = CGRect(x:0, y:hackY, width: videoView.frame.width, height: hackHeight)
+            print(videoView.frame, canvasView.frame)
         }
     }
     

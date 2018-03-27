@@ -128,7 +128,7 @@ class VideoTimelineView: UIView {
     private var generator: AVAssetImageGenerator?
     private var frames: [CMTimeValue:CGImage?] = [:]
     private var drawings: [CMTimeValue: CGImage] = [:]
-    private var displaySize = CGSize()
+    var displaySize = CGSize()
     private var displayPeriod = CMTimeValue(1)
     private var timeRange = CMTimeRange()
     
@@ -170,10 +170,10 @@ class VideoTimelineView: UIView {
         }
         // drawings
         if let d = delegate {
-            let drawingTimes = d.staticDrawings.keys.filter({ $0 >= timeMin && $0 <= timeMax })
+            let drawingTimes = d.annotations.staticDrawings.keys.filter({ $0 >= timeMin && $0 <= timeMax })
             for time in drawingTimes {
-                if let drawing = d.staticDrawingAt(time: CMTime(value: time, timescale:timeRange.start.timescale)) {
-                    drawings[time] = drawing.image.cropping(to:CGRect(origin: CGPoint(x:0, y:0), size: displaySize))
+                if let drawing = d.annotations.staticDrawingAt(time: CMTime(value: time, timescale:timeRange.start.timescale)) {
+                    drawings[time] = drawing.thumbImage
                 }
             }
         }
