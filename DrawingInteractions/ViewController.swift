@@ -28,35 +28,40 @@ class ViewController: UIViewController {
     }
     
     // The actual time, driven by the video playback
+    // Note slower than 1.0 can set multiple identical times.
+    // Firstrun hack exploits time on init has timescale of 1.
     var time = kCMTimeZero {
         willSet {
-            // Save static drawing, clear canvas
-            let newCount = canvasView.finishedLines.count
-            if newCount > 0 {
-                if let oldCount = annotations.staticDrawings[time.value]?.count {
-                    // The lines have changed, update and invalidate cache
-                    if oldCount != newCount {
-                        annotations.staticDrawings[time.value] = canvasView.finishedLines
-                        annotations.staticDrawingsFullFrame.removeValue(forKey: time.value)
+            if time != newValue || time.timescale == kCMTimeZero.timescale {
+                // Clear canvas, Save static drawing
+                let newCount = canvasView.finishedLines.count
+                if newCount > 0 {
+                    if let oldCount = annotations.staticDrawings[time.value]?.count {
+                        // The lines have changed, update and invalidate cache
+                        if oldCount != newCount {
+                            annotations.staticDrawings[time.value] = canvasView.finishedLines
+                            annotations.staticDrawingsFullFrame.removeValue(forKey: time.value)
+                        }
+                        // The lines have not changed, do nothing
                     }
-                    // The lines have not changed, do nothing
-                }
-                else {
-                    // There is a new drawing
-                    annotations.staticDrawings[time.value] = canvasView.finishedLines
+                    else {
+                        // There is a new drawing
+                        annotations.staticDrawings[time.value] = canvasView.finishedLines
+                    }
+                    canvasView.clear()
                 }
             }
-            canvasView.clear()
         }
         didSet {
-            // Propogate time amongst views
-            timelineView.time = time
-            // Load static drawing
-            if let d = annotations.staticDrawingAt(time: time) {
-                canvasView.finishedLines = d.lines
-                canvasView.frozenImage = d.fullImage
-                canvasView.needsFullRedraw = true
-                canvasView.setNeedsDisplay()
+            if time != oldValue || oldValue.timescale == kCMTimeZero.timescale {
+                // Propogate time amongst views
+                timelineView.time = time
+                // Load static drawing
+                if let d = annotations.staticDrawingAt(time: time) {
+                    canvasView.finishedLines = d.lines
+                    canvasView.frozenImage = d.fullImage
+                    canvasView.setNeedsDisplay()
+                }
             }
         }
     }
