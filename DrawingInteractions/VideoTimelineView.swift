@@ -17,6 +17,7 @@ class VideoTimelineView: UIView {
     let videoIsFlipped = true
     let nowMarkerDiameter:CGFloat = 12
     let textAttributes:[NSAttributedStringKey: Any] = [.foregroundColor: UIColor.white]
+    let snapPoints:CGFloat = 22
     
     func setVideoTrack(_ track: AVAssetTrack) {
         let aspectRatio = track.naturalSize.width / track.naturalSize.height
@@ -225,7 +226,14 @@ class VideoTimelineView: UIView {
     @objc private func tapAction(_ gestureRecognizer: UITapGestureRecognizer) {
         // Set time to the timeline time at the tapped point
         if gestureRecognizer.state == .ended {
-            let newTime = timeAt(x: gestureRecognizer.location(in: superview).x)
+            let tapX = gestureRecognizer.location(in: superview).x
+            var newTime = timeAt(x: tapX)
+            if let nearestSnapTime = drawings.keys.min(by: { abs($0 - time.value) < abs($1 - time.value) }) {
+                let nearestSnapX = xAt(time: nearestSnapTime)
+                if abs(tapX - nearestSnapX) < snapPoints {
+                    newTime = timeAt(x: nearestSnapX)
+                }
+            }
             // ...perchance to dream.
             //UIView.animate(
             //    withDuration: 0.5,
