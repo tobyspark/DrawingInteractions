@@ -14,8 +14,9 @@ class ViewController: UIViewController {
     // MARK: Properties
     
     var staticDrawings:[CMTimeValue:[Line]] = [:]
+    var staticDrawingsImaged:[CMTimeValue:CGImage] = [:]
     
-    let movie = ("testvideo", "mov")
+    let movie = (name:"testvideo", ext:"mov")
     let stripHeight:CGFloat = 44
     
     // The time any component wants the video to be at
@@ -39,12 +40,48 @@ class ViewController: UIViewController {
             // Propogate time amongst views
             timelineView.time = time
             // Load static drawing
-            if let lines = staticDrawings[time.value] {
-                canvasView.finishedLines = lines
-                canvasView.needsFullRedraw = true
+            if let d = staticDrawingAt(time: time) {
+                canvasView.finishedLines = d.lines
+                canvasView.frozenImage = d.image
                 canvasView.setNeedsDisplay()
             }
         }
+    }
+    
+    /// A `CGContext` for drawing the last representation of lines no longer receiving updates into.
+    lazy var lineContext: CGContext = {
+        let scale = view.window!.screen.scale
+        var size = view.bounds.size
+        
+        size.width *= scale
+        size.height *= scale
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        
+        let context: CGContext = CGContext.init(data: nil, width: Int(size.width), height: Int(size.height), bitsPerComponent: 8, bytesPerRow: 0, space: colorSpace, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+        
+        context.setLineCap(.round)
+        let transform = CGAffineTransform.init(scaleX:scale, y: scale)
+        context.concatenate(transform)
+        
+        return context
+    }()
+    func staticDrawingAt(time: CMTime) -> (lines: [Line], image: CGImage)? {
+        guard let lines = staticDrawings[time.value] else {
+            return nil
+        }
+        if staticDrawingsImaged.index(forKey: time.value) == nil {
+            lineContext.clear(view.bounds)
+            for line in lines {
+                line.drawCommitedPointsInContext(context: lineContext, isDebuggingEnabled: false, usePreciseLocation: true)
+            }
+            if let image = lineContext.makeImage() {
+                staticDrawingsImaged[time.value] = image
+            }
+            else {
+                return nil
+            }
+        }
+        return (lines, staticDrawingsImaged[time.value]!)
     }
     
     var timeBounds = kCMTimeRangeZero
@@ -153,7 +190,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        guard let movieURL = Bundle.main.url(forResource: movie.0, withExtension: movie.1) else {
+        guard let movieURL = Bundle.main.url(forResource: movie.name, withExtension: movie.ext) else {
             fatalError("Can't find \(movie)")
         }
         
