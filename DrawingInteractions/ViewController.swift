@@ -13,9 +13,12 @@ class ViewController: UIViewController {
     
     // MARK: Properties
     
+    var staticDrawings:[CMTimeValue:[Line]] = [:]
+    
     let movie = ("testvideo", "mov")
     let stripHeight:CGFloat = 44
     
+    // The time any component wants the video to be at
     var desiredTime = kCMTimeZero {
         didSet {
             time = CMTimeClampToRange(time, timeBounds)
@@ -23,8 +26,25 @@ class ViewController: UIViewController {
         }
     }
     
+    // The actual time, driven by the video playback
     var time = kCMTimeZero {
-        didSet { timelineView.time = time }
+        willSet {
+            // Save static drawing, clear canvas
+            if canvasView.finishedLines.count > 0 {
+                staticDrawings[time.value] = canvasView.finishedLines
+                canvasView.clear()
+            }
+        }
+        didSet {
+            // Propogate time amongst views
+            timelineView.time = time
+            // Load static drawing
+            if let lines = staticDrawings[time.value] {
+                canvasView.finishedLines = lines
+                canvasView.needsFullRedraw = true
+                canvasView.setNeedsDisplay()
+            }
+        }
     }
     
     var timeBounds = kCMTimeRangeZero
@@ -142,6 +162,7 @@ class ViewController: UIViewController {
         canvasView.translatesAutoresizingMaskIntoConstraints = true
         canvasView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         canvasView.backgroundColor = .clear
+        canvasView.usePreciseLocations = true
         view.addSubview(canvasView)
         
         let strip = CGRect(x: 0, y: 0, width: view.frame.width, height: stripHeight)

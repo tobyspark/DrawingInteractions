@@ -12,7 +12,7 @@ class CanvasView: UIView {
     // MARK: Properties
 
     let isPredictionEnabled = UIDevice.current.userInterfaceIdiom == .pad
-    let isTouchUpdatingEnabled = true
+    let isTouchUpdatingEnabled = false // FIXME: CanvasView breaks with this true. Lines never finish.
 
     var usePreciseLocations = false {
         didSet {
