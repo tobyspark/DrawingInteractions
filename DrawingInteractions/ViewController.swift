@@ -39,6 +39,17 @@ class ViewController: UIViewController {
     var time = kCMTimeZero {
         willSet {
             if time != newValue || time.timescale == kCMTimeZero.timescale {
+                // Dynamic Drawings - Line still active across frames
+                if canvasView.lines.count > 0 {
+                    let info = (canvasView.lines.first!, canvasView.lines.first!.points.last?.sequenceNumber ?? 0)
+                    if annotations.dynamicDrawings.index(forKey: time.value) == nil {
+                        annotations.dynamicDrawings[time.value] = [info]
+                    }
+                    else {
+                        annotations.dynamicDrawings[time.value]!.append(info)
+                    }
+                }
+                // Static Drawings - Lines completed within frame
                 if canvasView.finishedLines.count > 0 {
                     canvasView.clear()
                 }
