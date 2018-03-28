@@ -207,5 +207,11 @@ class ViewController: UIViewController {
     
     override func viewDidLayoutSubviews() {
         timelineView.boundsDidChange()
+        
+        // FIXME: Handle screen rotation for drawings. Non-trivial!
+        // - Line points are in coordinate system of screen at particular orientation
+        // - frozen context is currently orientation specific
+        // - idea of 'light table' of videos will require mapping screen coords to video coords
+        print("Video rect now: ", videoView.playerLayer.videoRect)
     }
 }
