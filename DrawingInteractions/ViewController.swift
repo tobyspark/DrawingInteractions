@@ -19,6 +19,12 @@ class ViewController: UIViewController {
     // The annotations
     var annotations = Annotations()
     
+    var rate: (rate:Float, isPaused: Bool) = (1.0, false) {
+        didSet {
+            videoView.player?.rate = rate.isPaused ? 0.0 : rate.rate
+        }
+    }
+    
     // The time any component wants the video to be at
     var desiredTime = kCMTimeZero {
         didSet {
@@ -92,6 +98,8 @@ class ViewController: UIViewController {
             let hackY = (videoView.frame.height - hackHeight) / 2
             canvasView.frame = CGRect(x:0, y:hackY, width: videoView.frame.width, height: hackHeight)
             print(videoView.frame, canvasView.frame)
+            
+            rate = (rate: 1.0, isPaused: false)
         }
     }
     

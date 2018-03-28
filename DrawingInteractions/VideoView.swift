@@ -21,7 +21,6 @@ class VideoView: UIView {
             // Smooth seek
             if let p = player {
                 if (!isSeekInProgress) {
-                    rateBeforeSeek = p.rate
                     p.rate = 0.0
                 }
                 if CMTimeCompare(newValue, desiredTime) != 0 {
@@ -60,17 +59,6 @@ class VideoView: UIView {
     
     var delegate: ViewController?
     
-    // MARK: Methods
-    
-    @IBAction func playPause(sender: UIGestureRecognizer) {
-        print("tap videoview")
-        if let p = player {
-            p.rate = (p.rate != 0.0) ? 0.0 : 1.0
-        }
-    }
-    
-
-    
     // MARK: Overrides
     
     override static var layerClass: AnyClass {
@@ -82,18 +70,18 @@ class VideoView: UIView {
     private var playerObserver: Any?
     
     private var isSeekInProgress = false
-    private var rateBeforeSeek:Float = 0.0
     var desiredTime = kCMTimeZero
     private func seekToDesiredTime() {
         isSeekInProgress = true
         let seekTimeInProgress = desiredTime
         player?.seek(to: seekTimeInProgress, toleranceBefore: kCMTimeZero, toleranceAfter: kCMTimeZero, completionHandler: { [weak self] _ in
-            if CMTimeCompare(seekTimeInProgress, self!.desiredTime) == 0 {
-                self?.player?.rate = self!.rateBeforeSeek
-                self?.isSeekInProgress = false
+            guard let s = self, let d = s.delegate else { return }
+            if CMTimeCompare(seekTimeInProgress, s.desiredTime) == 0 {
+                s.player?.rate = d.rate.isPaused ? 0.0 : d.rate.rate
+                s.isSeekInProgress = false
             }
             else {
-                self?.seekToDesiredTime()
+                s.seekToDesiredTime()
             }
         })
     }

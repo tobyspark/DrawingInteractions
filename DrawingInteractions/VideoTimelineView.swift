@@ -15,9 +15,8 @@ class VideoTimelineView: UIView {
     // MARK: Properties
     
     let videoIsFlipped = true
-    let nowMarkerDiameter:CGFloat = 12
     let textAttributes:[NSAttributedStringKey: Any] = [.foregroundColor: UIColor.white]
-    let snapPoints:CGFloat = 22
+    let targetPoints:CGFloat = 40
     
     func setVideoTrack(_ track: AVAssetTrack) {
         let aspectRatio = track.naturalSize.width / track.naturalSize.height
@@ -36,6 +35,11 @@ class VideoTimelineView: UIView {
     }
     
     func boundsDidChange() {
+        triangleAltitude = iconHeight * sqrt(3.0)/2.0
+        triangle1 = CGPoint(x: bounds.midX - triangleAltitude/2, y: bounds.midY - iconHeight/2)
+        triangle2 = CGPoint(x: bounds.midX - triangleAltitude/2, y: bounds.midY + iconHeight/2)
+        triangle3 = CGPoint(x: bounds.midX + triangleAltitude/2, y: bounds.midY)
+        
         updateImages()
         setNeedsDisplay()
     }
@@ -54,6 +58,8 @@ class VideoTimelineView: UIView {
         
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(tapAction))
         self.addGestureRecognizer(tapGestureRecognizer)
+        
+        boundsDidChange()
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -112,14 +118,33 @@ class VideoTimelineView: UIView {
                 ("\(secs)" as NSString).draw(at:textPoint, withAttributes: textAttributes)
             }
             
-            // Draw 'now' marker
+            // Draw play/pause icon with 'now' markers
             context.setFillColor(gray: 1.0, alpha: 1.0)
-            context.fillEllipse(in: CGRect(
-                x: bounds.midX - nowMarkerDiameter/2.0,
-                y: bounds.midY - nowMarkerDiameter/2.0,
-                width: nowMarkerDiameter,
-                height: nowMarkerDiameter
-            ))
+            context.strokeLineSegments(between: [
+                CGPoint(x: bounds.midX, y: 0), CGPoint(x: bounds.midX, y: 0 + tickHeight),
+                CGPoint(x: bounds.midX, y: displaySize.height), CGPoint(x: bounds.midX, y: displaySize.height - tickHeight),
+                ])
+            if delegate?.rate.isPaused ?? true {
+                context.strokeLineSegments(between: [
+                    triangle1, triangle2,
+                    triangle2, triangle3,
+                    triangle3, triangle1
+                    ])
+            }
+            else {
+                context.stroke(CGRect(
+                    x: bounds.midX - rectSpacing - rectWidth,
+                    y: bounds.midY - iconHeight/2,
+                    width: rectWidth,
+                    height: iconHeight
+                ))
+                context.stroke(CGRect(
+                    x: bounds.midX + rectSpacing,
+                    y: bounds.midY - iconHeight/2,
+                    width: rectWidth,
+                    height: iconHeight
+                ))
+            }
         }
     }
 
@@ -131,6 +156,15 @@ class VideoTimelineView: UIView {
     var displaySize = CGSize()
     private var displayPeriod = CMTimeValue(1)
     private var timeRange = CMTimeRange()
+    
+    let tickHeight = CGFloat(6)
+    let iconHeight = CGFloat(20)
+    let rectWidth = CGFloat(7)
+    let rectSpacing = CGFloat(3)
+    var triangleAltitude = CGFloat()
+    var triangle1 = CGPoint()
+    var triangle2 = CGPoint()
+    var triangle3 = CGPoint()
     
     private func updateImages() {
         let imageCountOutwards = Int(((bounds.width*0.5) / displaySize.width).rounded(.up)) + 1
@@ -175,6 +209,7 @@ class VideoTimelineView: UIView {
                 if let drawing = d.annotations.staticDrawingAt(time: CMTime(value: time, timescale:timeRange.start.timescale)) {
                     drawings[time] = drawing.thumbImage
                 }
+                self.setNeedsDisplay()
             }
         }
     }
@@ -223,23 +258,32 @@ class VideoTimelineView: UIView {
     }
     
     @objc private func tapAction(_ gestureRecognizer: UITapGestureRecognizer) {
+        // Play-pause psuedo button at centre
         // Set time to the timeline time at the tapped point
         if gestureRecognizer.state == .ended {
             let tapX = gestureRecognizer.location(in: superview).x
-            var newTime = timeAt(x: tapX)
-            if let nearestSnapTime = drawings.keys.min(by: { abs($0 - time.value) < abs($1 - time.value) }) {
-                let nearestSnapX = xAt(time: nearestSnapTime)
-                if abs(tapX - nearestSnapX) < snapPoints {
-                    newTime = timeAt(x: nearestSnapX)
+            switch tapX {
+            case bounds.midX-targetPoints...bounds.midX+targetPoints:
+                if let d = delegate {
+                    d.rate.isPaused = !d.rate.isPaused
                 }
+                setNeedsDisplay()
+            default:
+                var newTime = timeAt(x: tapX)
+                if let nearestSnapTime = drawings.keys.min(by: { abs($0 - time.value) < abs($1 - time.value) }) {
+                    let nearestSnapX = xAt(time: nearestSnapTime)
+                    if abs(tapX - nearestSnapX) < targetPoints {
+                        newTime = timeAt(x: nearestSnapX)
+                    }
+                }
+                // ...perchance to dream.
+                //UIView.animate(
+                //    withDuration: 0.5,
+                //    animations: { self.delegate?.time = newTime }
+                //)
+                // ...so DIY
+                delegate?.scrub(to: newTime, withDuration: 0.5)
             }
-            // ...perchance to dream.
-            //UIView.animate(
-            //    withDuration: 0.5,
-            //    animations: { self.delegate?.time = newTime }
-            //)
-            // ...so DIY
-            delegate?.scrub(to: newTime, withDuration: 0.5)
         }
     }
 }
