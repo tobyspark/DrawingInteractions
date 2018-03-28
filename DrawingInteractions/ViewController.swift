@@ -39,21 +39,7 @@ class ViewController: UIViewController {
     var time = kCMTimeZero {
         willSet {
             if time != newValue || time.timescale == kCMTimeZero.timescale {
-                // Clear canvas, Save static drawing
-                let newCount = canvasView.finishedLines.count
-                if newCount > 0 {
-                    if let oldCount = annotations.staticDrawings[time.value]?.count {
-                        // The lines have changed, update and invalidate cache
-                        if oldCount != newCount {
-                            annotations.staticDrawings[time.value] = canvasView.finishedLines
-                            annotations.staticDrawingsFullFrame.removeValue(forKey: time.value)
-                        }
-                        // The lines have not changed, do nothing
-                    }
-                    else {
-                        // There is a new drawing
-                        annotations.staticDrawings[time.value] = canvasView.finishedLines
-                    }
+                if canvasView.finishedLines.count > 0 {
                     canvasView.clear()
                 }
             }
@@ -76,9 +62,18 @@ class ViewController: UIViewController {
     var videoSize = CGSize()
     
     var timelineView: VideoTimelineView!
-    var canvasView: CanvasView!
+    var canvasView: NotifyingCanvasView!
     var videoView: VideoView {
         return view as! VideoView
+    }
+    
+    func linesDidUpdate() {
+        if canvasView.finishedLines.count > 0 {
+            annotations.staticDrawings[time.value] = canvasView.finishedLines
+            annotations.staticDrawingsFullFrame.removeValue(forKey: time.value)
+            annotations.staticDrawingsThumb.removeValue(forKey: time.value)
+            timelineView.drawingsDidChange()
+        }
     }
     
     func setVideo(_ movieURL:URL) {
@@ -196,12 +191,13 @@ class ViewController: UIViewController {
             fatalError("Can't find \(movie)")
         }
         
-        canvasView = CanvasView()
+        canvasView = NotifyingCanvasView()
         canvasView.frame = view.frame
         canvasView.translatesAutoresizingMaskIntoConstraints = true
         canvasView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         canvasView.backgroundColor = .clear
         canvasView.usePreciseLocations = true
+        canvasView.delegate = self
         view.addSubview(canvasView)
         
         let strip = CGRect(x: 0, y: 0, width: view.frame.width, height: stripHeight)

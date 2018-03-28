@@ -34,6 +34,11 @@ class VideoTimelineView: UIView {
         }
     }
     
+    func drawingsDidChange() {
+        updateImages()
+        setNeedsDisplay()
+    }
+    
     func boundsDidChange() {
         triangleAltitude = iconHeight * sqrt(3.0)/2.0
         triangle1 = CGPoint(x: bounds.midX - triangleAltitude/2, y: bounds.midY - iconHeight/2)

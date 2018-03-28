@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4B5AB9A420692E2500F81A8E /* VideoLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B5AB9A320692E2500F81A8E /* VideoLine.swift */; };
+		4B2C42FE206BB2DF00415827 /* NotifyingCanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B2C42FD206BB2DF00415827 /* NotifyingCanvasView.swift */; };
 		4B5AB9AA20698F6900F81A8E /* Annotations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B5AB9A920698F6900F81A8E /* Annotations.swift */; };
 		4B8A2DB820651C91005B9223 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B8A2DB720651C91005B9223 /* AppDelegate.swift */; };
 		4B8A2DBA20651C91005B9223 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B8A2DB920651C91005B9223 /* ViewController.swift */; };
@@ -33,7 +33,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		4B5AB9A320692E2500F81A8E /* VideoLine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoLine.swift; sourceTree = "<group>"; };
+		4B2C42FD206BB2DF00415827 /* NotifyingCanvasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotifyingCanvasView.swift; sourceTree = "<group>"; };
 		4B5AB9A920698F6900F81A8E /* Annotations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Annotations.swift; sourceTree = "<group>"; };
 		4B8A2DB420651C91005B9223 /* DrawingInteractions.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DrawingInteractions.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4B8A2DB720651C91005B9223 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -95,8 +95,8 @@
 				4B8A2DB920651C91005B9223 /* ViewController.swift */,
 				4B8A2DD720652AC5005B9223 /* VideoView.swift */,
 				4B8A2DDB2065502A005B9223 /* VideoTimelineView.swift */,
-				4B5AB9A320692E2500F81A8E /* VideoLine.swift */,
 				4B989A6F2068E9FB0070C438 /* CanvasView.swift */,
+				4B2C42FD206BB2DF00415827 /* NotifyingCanvasView.swift */,
 				4B989A702068E9FB0070C438 /* Line.swift */,
 				4B5AB9A920698F6900F81A8E /* Annotations.swift */,
 				4B8A2DBB20651C91005B9223 /* Main.storyboard */,
@@ -221,9 +221,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4B5AB9A420692E2500F81A8E /* VideoLine.swift in Sources */,
 				4B8A2DD820652AC5005B9223 /* VideoView.swift in Sources */,
 				4B5AB9AA20698F6900F81A8E /* Annotations.swift in Sources */,
+				4B2C42FE206BB2DF00415827 /* NotifyingCanvasView.swift in Sources */,
 				4B8A2DBA20651C91005B9223 /* ViewController.swift in Sources */,
 				4B989A712068E9FB0070C438 /* CanvasView.swift in Sources */,
 				4B989A722068E9FB0070C438 /* Line.swift in Sources */,
