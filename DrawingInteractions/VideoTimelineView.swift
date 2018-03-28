@@ -35,6 +35,7 @@ class VideoTimelineView: UIView {
     }
     
     func drawingsDidChange() {
+        drawingsStore.removeValue(forKey: time.value)
         updateImages()
         setNeedsDisplay()
     }
@@ -79,14 +80,14 @@ class VideoTimelineView: UIView {
                 context.translateBy(x: 0.0, y: displaySize.height)
                 context.scaleBy(x: 1.0, y: -1.0)
             }
-            for t in frames.keys {
+            for (t, frame) in frames {
                 let imageRect = CGRect(
                     x: xAt(time: t),
                     y: 0,
                     width: displaySize.width,
                     height: displaySize.height
                 )
-                if let image = frames[t]! {
+                if let image = frame {
                     context.draw(image, in: imageRect)
                 }
                 else {
@@ -99,7 +100,7 @@ class VideoTimelineView: UIView {
             }
             
             // Draw drawings
-            for t in drawings.keys {
+            for (t, drawing) in drawings {
                 let x = xAt(time: t)
                 let tickPath = [CGPoint(x:x,y:0), CGPoint(x:x,y:displaySize.height)]
                 context.setStrokeColor(gray: 1.0, alpha: 1.0)
@@ -110,7 +111,7 @@ class VideoTimelineView: UIView {
                     width: displaySize.width,
                     height: displaySize.height
                 )
-                context.draw(drawings[t]!, in: imageRect)
+                context.draw(drawing, in: imageRect)
             }
             
             // Draw timestamps
@@ -157,6 +158,7 @@ class VideoTimelineView: UIView {
     
     private var generator: AVAssetImageGenerator?
     private var frames: [CMTimeValue:CGImage?] = [:]
+    private var drawingsStore: [CMTimeValue: CGImage] = [:]
     private var drawings: [CMTimeValue: CGImage] = [:]
     var displaySize = CGSize()
     private var displayPeriod = CMTimeValue(1)
@@ -211,13 +213,47 @@ class VideoTimelineView: UIView {
         if let d = delegate {
             let drawingTimes = d.annotations.staticDrawings.keys.filter({ $0 >= timeMin && $0 <= timeMax })
             for time in drawingTimes {
-                if let drawing = d.annotations.staticDrawingAt(time: CMTime(value: time, timescale:timeRange.start.timescale)) {
-                    drawings[time] = drawing.thumbImage
+                if drawingsStore.index(forKey: time) == nil {
+                    thumbContext.clear(CGRect(origin: CGPoint.zero, size: displaySize))
+                    for line in d.annotations.staticDrawings[time]! {
+                        let oldLineWidth = line.lineWidth
+                        line.lineWidth = bounds.width / displaySize.width
+                        line.drawCommitedPointsInContext(context: thumbContext, isDebuggingEnabled: false, usePreciseLocation: true)
+                        line.lineWidth = oldLineWidth
+                    }
+                    if let image = thumbContext.makeImage() {
+                        drawingsStore[time] = image
+                    }
+                    else {
+                        os_log("Failed to make a staticDrawingsThumb")
+                    }
                 }
-                self.setNeedsDisplay()
             }
+            drawings = drawingsStore.filter({ drawingTimes.contains($0.key) })
         }
     }
+    
+    lazy var thumbContext: CGContext = {
+        var size = displaySize
+        let screenScale = CGFloat(2.0) // FIXME: Hardcoded for test iPad. Get scale of device's screen.
+        size.width *= screenScale
+        size.height *= screenScale
+        
+        let context = CGContext(
+            data: nil,
+            width: Int(size.width),
+            height: Int(size.height),
+            bitsPerComponent: 8,
+            bytesPerRow: 0,
+            space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+            )!
+        
+        let thumbScale = displaySize.width / bounds.width
+        context.scaleBy(x:screenScale * thumbScale, y: screenScale * thumbScale)
+        
+        return context
+    }()
     
     private func timeAt(x: CGFloat) -> CMTime {
         let timePerPoint = CGFloat(displayPeriod) / displaySize.width

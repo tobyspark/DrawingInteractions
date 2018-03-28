@@ -49,9 +49,9 @@ class ViewController: UIViewController {
                 // Propogate time amongst views
                 timelineView.time = time
                 // Load static drawing
-                if let d = annotations.staticDrawingAt(time: time) {
-                    canvasView.finishedLines = d.lines
-                    canvasView.frozenImage = d.fullImage
+                if let lines = annotations.staticDrawings[time.value] {
+                    canvasView.finishedLines = lines
+                    canvasView.needsFullRedraw = true
                     canvasView.setNeedsDisplay()
                 }
             }
@@ -70,8 +70,6 @@ class ViewController: UIViewController {
     func linesDidUpdate() {
         if canvasView.finishedLines.count > 0 {
             annotations.staticDrawings[time.value] = canvasView.finishedLines
-            annotations.staticDrawingsFullFrame.removeValue(forKey: time.value)
-            annotations.staticDrawingsThumb.removeValue(forKey: time.value)
             timelineView.drawingsDidChange()
         }
     }
@@ -84,16 +82,6 @@ class ViewController: UIViewController {
             timelineView.setVideoTrack(track)
             videoView.player = player
             time = track.timeRange.start
-            annotations.fullFrameSize = videoSize
-            annotations.thumbnailSize = timelineView.displaySize
-            annotations.screenScale = view.contentScaleFactor
-            
-            // FIXME
-            let hackHeight = videoView.frame.width / videoSize.width * videoSize.height
-            let hackY = (videoView.frame.height - hackHeight) / 2
-            canvasView.frame = CGRect(x:0, y:hackY, width: videoView.frame.width, height: hackHeight)
-            print(videoView.frame, canvasView.frame)
-            
             rate = (rate: 1.0, isPaused: false)
         }
     }
