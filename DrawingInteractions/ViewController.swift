@@ -41,7 +41,7 @@ class ViewController: UIViewController {
             if time != newValue || time.timescale == kCMTimeZero.timescale {
                 // Dynamic Drawings - Line still active across frames
                 if canvasView.lines.count > 0 {
-                    let info = (canvasView.lines.first!, canvasView.lines.first!.points.last?.sequenceNumber ?? 0)
+                    let info = (canvasView.lines.first!, canvasView.lines.first!.points.last!)
                     if annotations.dynamicDrawings.index(forKey: time.value) == nil {
                         annotations.dynamicDrawings[time.value] = [info]
                     }
@@ -49,9 +49,16 @@ class ViewController: UIViewController {
                         annotations.dynamicDrawings[time.value]!.append(info)
                     }
                 }
+                if canvasView.focusPoints.count > 0 {
+                    canvasView.focusPoints.removeAll()
+                    canvasView.needsFullRedraw = true
+                    canvasView.setNeedsDisplay()
+                }
                 // Static Drawings - Lines completed within frame
                 if canvasView.finishedLines.count > 0 {
-                    canvasView.clear()
+                    canvasView.finishedLines.removeAll()
+                    canvasView.needsFullRedraw = true
+                    canvasView.setNeedsDisplay()
                 }
             }
         }
@@ -62,6 +69,12 @@ class ViewController: UIViewController {
                 // Load static drawing
                 if let lines = annotations.staticDrawings[time.value] {
                     canvasView.finishedLines = lines
+                    canvasView.needsFullRedraw = true
+                    canvasView.setNeedsDisplay()
+                }
+                // Load dynamic drawing, aka focus point
+                if let dynamicInstant = annotations.dynamicDrawings[time.value] {
+                    canvasView.focusPoints = dynamicInstant.map( { $0.point.preciseLocation } )
                     canvasView.needsFullRedraw = true
                     canvasView.setNeedsDisplay()
                 }
