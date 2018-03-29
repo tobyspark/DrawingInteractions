@@ -72,11 +72,12 @@ class ViewController: UIViewController {
                     canvasView.needsFullRedraw = true
                     canvasView.setNeedsDisplay()
                 }
-                // Load dynamic drawing, aka focus point
-                if let dynamicInstant = annotations.dynamicDrawings[time.value] {
-                    canvasView.focusPoints = dynamicInstant.map( { $0.point.preciseLocation } )
-                    canvasView.needsFullRedraw = true
-                    canvasView.setNeedsDisplay()
+                // Load dynamic drawing, aka focus points
+                let timeSpan = CMTimeValue(time.timescale) / 2 // i.e. 1 second total span
+                let spread = annotations.dynamicDrawings.filter { $0.key > time.value - timeSpan && $0.key < time.value + timeSpan }
+                for (instantTime, info) in spread {
+                    let focusAmount = 1.0 - CGFloat(abs(instantTime - time.value)) / CGFloat(timeSpan)
+                    canvasView.focusPoints.append((amount: focusAmount, points: info.map { $0.point.preciseLocation }))
                 }
             }
         }

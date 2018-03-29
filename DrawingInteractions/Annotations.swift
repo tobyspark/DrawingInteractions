@@ -12,9 +12,5 @@ import os.log
 
 class Annotations {
     var staticDrawings:[CMTimeValue:[Line]] = [:]
-    var dynamicDrawings:[CMTimeValue:[(line:Line, point:LinePoint)]] = [:] {
-        didSet {
-            print(dynamicDrawings)
-        }
-    }
+    var dynamicDrawings:[CMTimeValue:[(line:Line, point:LinePoint)]] = [:] 
 }

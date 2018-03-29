@@ -20,7 +20,7 @@ class NotifyingCanvasView: CanvasView {
     
     var delegate: ViewController?
     
-    var focusPoints = [CGPoint]()
+    var focusPoints = [(amount:CGFloat, points:[CGPoint])]()
     
     let focusDiameter = CGFloat(100)
     
@@ -38,17 +38,21 @@ class NotifyingCanvasView: CanvasView {
             setFrozenImageNeedsUpdate()
             frozenContext.clear(bounds)
             if focusPoints.count > 0 {
-                frozenContext.beginPath()
-                frozenContext.addRect(bounds)
-                for point in focusPoints {
-                    frozenContext.addEllipse(in: CGRect(x: point.x - focusDiameter/2.0,
-                                                         y: point.y - focusDiameter/2.0,
-                                                         width: focusDiameter,
-                                                         height: focusDiameter
-                    ))
+                let maxFocusAmount = focusPoints.map({$0.amount}).max()!
+                frozenContext.setFillColor(gray: 1.0, alpha: 0.5*maxFocusAmount)
+                frozenContext.fill(bounds)
+                frozenContext.setBlendMode(.destinationOut)
+                for (amount, points) in focusPoints {
+                    frozenContext.setFillColor(gray: 1.0, alpha: amount*amount) // use square to compensate for alpha accumulating in overlaps
+                    for point in points {
+                        frozenContext.fillEllipse(in: CGRect(x: point.x - focusDiameter/2.0,
+                                                            y: point.y - focusDiameter/2.0,
+                                                            width: focusDiameter,
+                                                            height: focusDiameter
+                        ))
+                    }
                 }
-                frozenContext.setFillColor(gray: 1.0, alpha: 0.5)
-                frozenContext.fillPath(using: .evenOdd)
+                frozenContext.setBlendMode(.normal)
             }
             for array in [finishedLines,lines] {
                 for line in array {
