@@ -9,6 +9,10 @@
 import UIKit
 import AVFoundation
 
+/// The view controller for the main drawing-on-video view.
+///
+/// A `VideoView` displays the video and is the source for time, i.e. the video's current time, throughout the app. A subview `VideoTimelineView` displays a timeline scrubber, with input handling. Another subview provides the drawing canvas, with input handling. This controller marshalls the current time around the application, handling the storage and retrieval of drawing annotations per time change.
+
 class ViewController: UIViewController {
     
     // MARK: Properties
@@ -16,16 +20,19 @@ class ViewController: UIViewController {
     let movie = (name:"testvideo", ext:"mov")
     let stripHeight:CGFloat = 44
     
-    // The annotations
+    /// The annotations, i.e. drawings.
     var annotations = Annotations()
     
+    /// The video playback rate.
+    ///
+    /// Use of `isPaused` allows the rate to be resumed upon unpause.
     var rate: (rate:Float, isPaused: Bool) = (1.0, false) {
         didSet {
             videoView.player?.rate = rate.isPaused ? 0.0 : rate.rate
         }
     }
     
-    // The time any component wants the video to be at
+    // The time any component wants the app (i.e. video) to be at
     var desiredTime = kCMTimeZero {
         didSet {
             time = CMTimeClampToRange(time, timeBounds)
@@ -33,9 +40,10 @@ class ViewController: UIViewController {
         }
     }
     
-    // The actual time, driven by the video playback
-    // Note slower than 1.0 can set multiple identical times.
-    // Firstrun hack exploits time on init has timescale of 1.
+    /// The actual time, driven by the video playback
+    ///
+    /// Note multiple identical times can be received under some conditions.
+    /// Firstrun hack exploits time on init has timescale of 1.
     var time = kCMTimeZero {
         willSet {
             if time != newValue || time.timescale == kCMTimeZero.timescale {
@@ -92,6 +100,7 @@ class ViewController: UIViewController {
         return view as! VideoView
     }
     
+    /// Marshall updates to the current drawing data around the app
     func linesDidUpdate() {
         if canvasView.finishedLines.count > 0 {
             annotations.staticDrawings[time.value] = canvasView.finishedLines
@@ -99,6 +108,9 @@ class ViewController: UIViewController {
         }
     }
     
+    /// Set the video to play
+    ///
+    /// - ToDo: Ensure everything is (re-)initialised from the video, here.
     func setVideo(_ movieURL:URL) {
         let player = AVPlayer(url: movieURL)
         if let track = player.currentItem!.asset.tracks(withMediaType: .video).first {
@@ -111,8 +123,13 @@ class ViewController: UIViewController {
         }
     }
     
-    // Ideally, there would be a CAAnimation-like way of animating the `time` property
-    // Without, here is the DIY ugliness.
+    /// Animate time property to a new value, over a duration. In video-speak, "to scrub"
+    ///
+    /// - parameter newTime: the new time to animate to.
+    /// - parameter duration: the time over which to animate.
+    ///
+    /// Note: ideally, there would be a CAAnimation-like way of animating the `time` property.
+    /// Without, this is DIY ugliness.
     func scrub(to newTime:CMTime, withDuration duration:TimeInterval) {
         let startDate = Date()
         let startTime = time
@@ -139,6 +156,7 @@ class ViewController: UIViewController {
     
     // MARK: Touch Handling
     
+    /// Only send stylus touch events to the drawing canvas.
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         let stylusTouches = touches.filter { return $0.type == .stylus }
         if !stylusTouches.isEmpty {
@@ -150,6 +168,7 @@ class ViewController: UIViewController {
         }
     }
     
+    /// Only send stylus touch events to the drawing canvas.
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         let stylusTouches = touches.filter { return $0.type == .stylus }
         if !stylusTouches.isEmpty {
@@ -161,6 +180,7 @@ class ViewController: UIViewController {
         }
     }
     
+    /// Only send stylus touch events to the drawing canvas.
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         let stylusTouches = touches.filter { return $0.type == .stylus }
         if !stylusTouches.isEmpty {
@@ -173,6 +193,7 @@ class ViewController: UIViewController {
         }
     }
     
+    /// Only send stylus touch events to the drawing canvas.
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
         let stylusTouches = touches.filter { return $0.type == .stylus }
         if !stylusTouches.isEmpty {
@@ -184,6 +205,7 @@ class ViewController: UIViewController {
         }
     }
     
+    /// Only send stylus touch events to the drawing canvas.
     override func touchesEstimatedPropertiesUpdated(_ touches: Set<UITouch>) {
         let stylusTouches = touches.filter { return $0.type == .stylus }
         if !stylusTouches.isEmpty {

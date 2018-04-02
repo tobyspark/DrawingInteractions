@@ -8,6 +8,9 @@
 
 import UIKit
 
+/// CanvasView as per Apple's `TouchCanvas` sample code, with:
+/// - a delegate method that is called when lines change
+/// - the ability to store and display "focus points"
 class NotifyingCanvasView: CanvasView {
     
     override var finishedLines: [Line] {

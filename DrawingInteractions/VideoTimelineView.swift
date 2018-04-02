@@ -10,6 +10,10 @@ import UIKit
 import AVFoundation
 import os.log
 
+/// Displays a filmstrip, syncronised to the set time.
+/// - Presents a play/pause button with tap input handling
+/// - Handles left/right pan gesture to scrub time back and forwards
+/// - Also will display timestamped drawings upon the timeline (beta)
 class VideoTimelineView: UIView {
 
     // MARK: Properties

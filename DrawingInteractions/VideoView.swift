@@ -9,6 +9,9 @@
 import UIKit
 import AVFoundation
 
+/// Displays a video.
+/// - When time is set, will seek smoothly; only seeking to a new time once a seek has finished.
+/// - Will set `time` property on a delegate as video plays.
 class VideoView: UIView {
     
     // MARK: Properties
