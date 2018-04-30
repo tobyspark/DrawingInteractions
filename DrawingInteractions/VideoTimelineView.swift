@@ -218,12 +218,9 @@ class VideoTimelineView: UIView {
             let drawingTimes = d.annotations.staticDrawings.keys.filter({ $0 >= timeMin && $0 <= timeMax })
             for time in drawingTimes {
                 if drawingsStore.index(forKey: time) == nil {
-                    thumbContext.clear(CGRect(origin: CGPoint.zero, size: displaySize))
+                    thumbContext.clear(CGRect(x: 0, y: 0, width: thumbContext.width, height: thumbContext.height))
                     for line in d.annotations.staticDrawings[time]! {
-                        let oldLineWidth = line.lineWidth
-                        line.lineWidth = bounds.width / displaySize.width
-                        line.drawCommitedPointsInContext(context: thumbContext, isDebuggingEnabled: false, usePreciseLocation: true)
-                        line.lineWidth = oldLineWidth
+                        line.drawCommitedPointsInContext(context: thumbContext, isDebuggingEnabled: false, usePreciseLocation: true, transform: thumbTransform)
                     }
                     if let image = thumbContext.makeImage() {
                         drawingsStore[time] = image
@@ -236,7 +233,12 @@ class VideoTimelineView: UIView {
             drawings = drawingsStore.filter({ drawingTimes.contains($0.key) })
         }
     }
-    
+
+    lazy var thumbTransform: CGAffineTransform = {
+        let screenScale = CGFloat(2.0)
+        let thumbScale = displaySize.width / bounds.width
+        return CGAffineTransform(scaleX: thumbScale*screenScale, y: thumbScale*screenScale)
+    }()
     lazy var thumbContext: CGContext = {
         var size = displaySize
         let screenScale = CGFloat(2.0) // FIXME: Hardcoded for test iPad. Get scale of device's screen.
@@ -252,9 +254,6 @@ class VideoTimelineView: UIView {
             space: CGColorSpaceCreateDeviceRGB(),
             bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
             )!
-        
-        let thumbScale = displaySize.width / bounds.width
-        context.scaleBy(x:screenScale * thumbScale, y: screenScale * thumbScale)
         
         return context
     }()

@@ -216,9 +216,14 @@ class Line: NSObject {
         committedPoints.append(contentsOf: committing)
     }
 
-    func drawCommitedPointsInContext(context: CGContext, isDebuggingEnabled: Bool, usePreciseLocation: Bool) {
+    func drawCommitedPointsInContext(context: CGContext, isDebuggingEnabled: Bool, usePreciseLocation: Bool, transform: CGAffineTransform? = nil) {
         let committedLine = Line()
-        committedLine.points = committedPoints
+        if let transform = transform {
+            committedLine.points = committedPoints.map { LinePoint(point: $0, transform: transform) }
+        }
+        else {
+            committedLine.points = committedPoints
+        }
         committedLine.drawInContext(context: context, isDebuggingEnabled: isDebuggingEnabled, usePreciseLocation: usePreciseLocation)
     }
 
@@ -331,6 +336,22 @@ class LinePoint: NSObject  {
         estimationUpdateIndex = touch.estimationUpdateIndex
     }
 
+    init(point: LinePoint, transform: CGAffineTransform) {
+        sequenceNumber = point.sequenceNumber
+        type = point.type
+        pointType = point.pointType
+        timestamp = point.timestamp
+        location = point.location.applying(transform)
+        preciseLocation = point.preciseLocation.applying(transform)
+        azimuthAngle = point.azimuthAngle
+        altitudeAngle = point.altitudeAngle
+        force = point.force
+        
+        estimatedPropertiesExpectingUpdates = point.estimatedPropertiesExpectingUpdates
+        estimatedProperties = point.estimatedProperties
+        estimationUpdateIndex = point.estimationUpdateIndex
+    }
+    
     func updateWithTouch(touch: UITouch) -> Bool {
         guard let estimationUpdateIndex = touch.estimationUpdateIndex, estimationUpdateIndex == estimationUpdateIndex else { return false }
 
