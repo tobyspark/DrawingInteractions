@@ -314,10 +314,10 @@ class VideoTimelineView: UIView {
                 setNeedsDisplay()
             default:
                 var newTime = timeAt(x: tapX)
-                if let nearestSnapTime = drawings.keys.min(by: { abs($0 - time.value) < abs($1 - time.value) }) {
+                if let nearestSnapTime = drawings.keys.min(by: { abs($0 - newTime.value) < abs($1 - newTime.value) }) {
                     let nearestSnapX = xAt(time: nearestSnapTime)
                     if abs(tapX - nearestSnapX) < targetPoints {
-                        newTime = timeAt(x: nearestSnapX)
+                        newTime = CMTime(value: nearestSnapTime, timescale: time.timescale)
                     }
                 }
                 // ...perchance to dream.
