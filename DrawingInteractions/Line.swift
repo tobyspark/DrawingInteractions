@@ -19,8 +19,6 @@ class Line: NSObject {
 
     // Points already drawn into 'frozen' representation of this line.
     var committedPoints = [LinePoint]()
-    
-    var lineWidth = CGFloat(1)
 
     var isComplete: Bool {
         return pointsWaitingForUpdatesByEstimationIndex.count == 0
@@ -157,8 +155,7 @@ class Line: NSObject {
             context.move(to: CGPoint(x: priorLocation.x, y: priorLocation.y))
             context.addLine(to: CGPoint(x: location.x, y: location.y))
 
-            context.setLineWidth(lineWidth * point.magnitude)
-
+            context.setLineWidth(point.magnitude)
             context.strokePath()
 
             // Draw azimuith and elevation on all non-coalesced points when debugging.
@@ -206,7 +203,6 @@ class Line: NSObject {
         guard committing.count > 1 else { return }
 
         let committedLine = Line()
-        committedLine.lineWidth = lineWidth
         committedLine.points = committing
         committedLine.drawInContext(context: context, isDebuggingEnabled: isDebuggingEnabled, usePreciseLocation: usePreciseLocation)
 
@@ -222,7 +218,6 @@ class Line: NSObject {
 
     func drawCommitedPointsInContext(context: CGContext, isDebuggingEnabled: Bool, usePreciseLocation: Bool) {
         let committedLine = Line()
-        committedLine.lineWidth = lineWidth
         committedLine.points = committedPoints
         committedLine.drawInContext(context: context, isDebuggingEnabled: isDebuggingEnabled, usePreciseLocation: usePreciseLocation)
     }
