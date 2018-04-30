@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		4B2C42FE206BB2DF00415827 /* NotifyingCanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B2C42FD206BB2DF00415827 /* NotifyingCanvasView.swift */; };
 		4B5AB9AA20698F6900F81A8E /* Annotations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B5AB9A920698F6900F81A8E /* Annotations.swift */; };
+		4B67F86820977B5C00327FAA /* Readme.markdown in Resources */ = {isa = PBXBuildFile; fileRef = 4B67F86720977B5C00327FAA /* Readme.markdown */; };
 		4B8A2DB820651C91005B9223 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B8A2DB720651C91005B9223 /* AppDelegate.swift */; };
 		4B8A2DBA20651C91005B9223 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B8A2DB920651C91005B9223 /* ViewController.swift */; };
 		4B8A2DBD20651C91005B9223 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4B8A2DBB20651C91005B9223 /* Main.storyboard */; };
@@ -35,6 +36,7 @@
 /* Begin PBXFileReference section */
 		4B2C42FD206BB2DF00415827 /* NotifyingCanvasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotifyingCanvasView.swift; sourceTree = "<group>"; };
 		4B5AB9A920698F6900F81A8E /* Annotations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Annotations.swift; sourceTree = "<group>"; };
+		4B67F86720977B5C00327FAA /* Readme.markdown */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = Readme.markdown; sourceTree = "<group>"; };
 		4B8A2DB420651C91005B9223 /* DrawingInteractions.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DrawingInteractions.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4B8A2DB720651C91005B9223 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		4B8A2DB920651C91005B9223 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -73,6 +75,7 @@
 		4B8A2DAB20651C91005B9223 = {
 			isa = PBXGroup;
 			children = (
+				4B67F86720977B5C00327FAA /* Readme.markdown */,
 				4B8A2DB620651C91005B9223 /* DrawingInteractions */,
 				4B8A2DCB20651C91005B9223 /* DrawingInteractionsTests */,
 				4B8A2DB520651C91005B9223 /* Products */,
@@ -202,6 +205,7 @@
 			files = (
 				4B8A2DDA206533AE005B9223 /* testvideo.mov in Resources */,
 				4B8A2DC220651C91005B9223 /* LaunchScreen.storyboard in Resources */,
+				4B67F86820977B5C00327FAA /* Readme.markdown in Resources */,
 				4B8A2DBF20651C91005B9223 /* Assets.xcassets in Resources */,
 				4B8A2DBD20651C91005B9223 /* Main.storyboard in Resources */,
 			);
