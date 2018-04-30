@@ -260,5 +260,6 @@ class ViewController: UIViewController {
         // - frozen context is currently orientation specific
         // - idea of 'light table' of videos will require mapping screen coords to video coords
         print("Video rect now: ", videoView.playerLayer.videoRect)
+        canvasView.transform = CGAffineTransform(translationX: 0, y: videoView.playerLayer.videoRect.origin.y)
     }
 }
