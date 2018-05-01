@@ -64,11 +64,9 @@ class CanvasView: UIView {
         let colorSpace = CGColorSpaceCreateDeviceRGB()
 
         let context: CGContext = CGContext.init(data: nil, width: Int(size.width), height: Int(size.height), bitsPerComponent: 8, bytesPerRow: 0, space: colorSpace, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
-
+        context.scaleBy(x: scale, y: scale)
         context.setLineCap(.round)
-        let transform = CGAffineTransform.init(scaleX:scale, y: scale)
-        context.concatenate(transform)
-
+        
         return context
     }()
 
