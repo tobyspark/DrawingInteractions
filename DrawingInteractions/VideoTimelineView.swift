@@ -235,13 +235,12 @@ class VideoTimelineView: UIView {
     }
 
     lazy var thumbTransform: CGAffineTransform = {
-        let screenScale = CGFloat(2.0)
         let thumbScale = displaySize.width / bounds.width
-        return CGAffineTransform(scaleX: thumbScale*screenScale, y: thumbScale*screenScale)
+        return CGAffineTransform(scaleX: thumbScale, y: thumbScale)
     }()
     lazy var thumbContext: CGContext = {
         var size = displaySize
-        let screenScale = CGFloat(2.0) // FIXME: Hardcoded for test iPad. Get scale of device's screen.
+        let screenScale = self.window!.screen.scale
         size.width *= screenScale
         size.height *= screenScale
         
@@ -254,6 +253,7 @@ class VideoTimelineView: UIView {
             space: CGColorSpaceCreateDeviceRGB(),
             bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
             )!
+        context.scaleBy(x: screenScale, y: screenScale)
         
         return context
     }()
