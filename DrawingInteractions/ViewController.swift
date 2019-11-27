@@ -13,7 +13,19 @@ import AVFoundation
 ///
 /// A `VideoView` displays the video and is the source for time, i.e. the video's current time, throughout the app. A subview `VideoTimelineView` displays a timeline scrubber, with input handling. Another subview provides the drawing canvas, with input handling. This controller marshalls the current time around the application, handling the storage and retrieval of drawing annotations per time change.
 
-class ViewController: UIViewController {
+protocol TimeProtocol: AnyObject {
+    var time: CMTime { get set }
+    var desiredTime: CMTime { get set }
+    var rate: (rate:Float, isPaused: Bool) { get set }
+    func scrub(to newTime:CMTime, withDuration duration:TimeInterval)
+}
+
+protocol AnnotationProtocol: AnyObject {
+    var annotations: Annotations { get set }
+    func linesDidUpdate()
+}
+
+class ViewController: UIViewController, TimeProtocol, AnnotationProtocol {
     
     // MARK: Properties
     

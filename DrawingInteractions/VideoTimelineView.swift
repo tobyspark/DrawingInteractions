@@ -54,7 +54,7 @@ class VideoTimelineView: UIView {
         setNeedsDisplay()
     }
     
-    var delegate: ViewController?
+    var delegate: (TimeProtocol & AnnotationProtocol)?
     
     // MARK: Overrides
     

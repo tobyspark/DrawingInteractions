@@ -21,7 +21,7 @@ class NotifyingCanvasView: CanvasView {
         }
     }
     
-    var delegate: ViewController?
+    var delegate: AnnotationProtocol?
     
     var focusPoints = [(amount:CGFloat, points:[CGPoint])]()
     

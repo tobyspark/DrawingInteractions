@@ -60,7 +60,7 @@ class VideoView: UIView {
         return layer as! AVPlayerLayer
     }
     
-    var delegate: ViewController?
+    weak var delegate: TimeProtocol?
     
     // MARK: Overrides
     
