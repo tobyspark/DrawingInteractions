@@ -298,9 +298,9 @@ class LinePoint: NSObject  {
     var force: CGFloat
     var location: CGPoint
     var preciseLocation: CGPoint
-    var estimatedPropertiesExpectingUpdates: UITouchProperties
-    var estimatedProperties: UITouchProperties
-    let type: UITouchType
+    var estimatedPropertiesExpectingUpdates: UITouch.Properties
+    var estimatedProperties: UITouch.Properties
+    let type: UITouch.TouchType
     var altitudeAngle: CGFloat
     var azimuthAngle: CGFloat
     let estimationUpdateIndex: NSNumber?
@@ -355,7 +355,7 @@ class LinePoint: NSObject  {
         guard let estimationUpdateIndex = touch.estimationUpdateIndex, estimationUpdateIndex == estimationUpdateIndex else { return false }
 
         // An array of the touch properties that may be of interest.
-        let touchProperties: [UITouchProperties] = [.altitude, .azimuth, .force, .location]
+        let touchProperties: [UITouch.Properties] = [.altitude, .azimuth, .force, .location]
 
         // Iterate through possible properties.
         for expectedProperty in touchProperties {
@@ -364,13 +364,13 @@ class LinePoint: NSObject  {
 
             // Update the value of the point with the value from the touch's property.
             switch expectedProperty {
-                case UITouchProperties.force:
+                case UITouch.Properties.force:
                     force = touch.force
-                case UITouchProperties.azimuth:
+                case UITouch.Properties.azimuth:
                     azimuthAngle = touch.azimuthAngle(in: touch.view)
-                case UITouchProperties.altitude:
+                case UITouch.Properties.altitude:
                     altitudeAngle = touch.altitudeAngle
-                case UITouchProperties.location:
+                case UITouch.Properties.location:
                     location = touch.location(in: touch.view)
                     preciseLocation = touch.preciseLocation(in: touch.view)
                 default:

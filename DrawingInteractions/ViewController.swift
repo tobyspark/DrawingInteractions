@@ -45,9 +45,9 @@ class ViewController: UIViewController, TimeProtocol, AnnotationProtocol {
     }
     
     // The time any component wants the app (i.e. video) to be at
-    var desiredTime = kCMTimeZero {
+    var desiredTime = CMTime.zero {
         didSet {
-            time = CMTimeClampToRange(time, timeBounds)
+            time = CMTimeClampToRange(time, range: timeBounds)
             videoView.time = desiredTime
         }
     }
@@ -56,9 +56,9 @@ class ViewController: UIViewController, TimeProtocol, AnnotationProtocol {
     ///
     /// Note multiple identical times can be received under some conditions.
     /// Firstrun hack exploits time on init has timescale of 1.
-    var time = kCMTimeZero {
+    var time = CMTime.zero {
         willSet {
-            if time != newValue || time.timescale == kCMTimeZero.timescale {
+            if time != newValue || time.timescale == CMTime.zero.timescale {
                 // Dynamic Drawings - Line still active across frames
                 if canvasView.lines.count > 0 {
                     let info = (canvasView.lines.first!, canvasView.lines.first!.points.last!)
@@ -83,7 +83,7 @@ class ViewController: UIViewController, TimeProtocol, AnnotationProtocol {
             }
         }
         didSet {
-            if time != oldValue || oldValue.timescale == kCMTimeZero.timescale {
+            if time != oldValue || oldValue.timescale == CMTime.zero.timescale {
                 // Propogate time amongst views
                 timelineView.time = time
                 // Load static drawing
@@ -103,7 +103,7 @@ class ViewController: UIViewController, TimeProtocol, AnnotationProtocol {
         }
     }
     
-    var timeBounds = kCMTimeRangeZero
+    var timeBounds = CMTimeRange.zero
     var videoSize = CGSize()
     
     var timelineView: VideoTimelineView!

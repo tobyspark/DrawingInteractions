@@ -18,7 +18,7 @@ class VideoView: UIView {
     
     var time: CMTime {
         get {
-            return player?.currentTime() ?? kCMTimeZero
+            return player?.currentTime() ?? CMTime.zero
         }
         set {
             // Smooth seek
@@ -50,7 +50,7 @@ class VideoView: UIView {
                 playerObserver = playerLayer.player?.addPeriodicTimeObserver(
                     forInterval: interval,
                     queue: mainQueue,
-                    using: { d.time = CMTimeConvertScale($0, timescale, .roundHalfAwayFromZero) } // Emit a constant timescale, for sanity elsewhere
+                    using: { d.time = CMTimeConvertScale($0, timescale: timescale, method: .roundHalfAwayFromZero) } // Emit a constant timescale, for sanity elsewhere
                 )
             }
         }
@@ -73,11 +73,11 @@ class VideoView: UIView {
     private var playerObserver: Any?
     
     private var isSeekInProgress = false
-    var desiredTime = kCMTimeZero
+    var desiredTime = CMTime.zero
     private func seekToDesiredTime() {
         isSeekInProgress = true
         let seekTimeInProgress = desiredTime
-        player?.seek(to: seekTimeInProgress, toleranceBefore: kCMTimeZero, toleranceAfter: kCMTimeZero, completionHandler: { [weak self] _ in
+        player?.seek(to: seekTimeInProgress, toleranceBefore: CMTime.zero, toleranceAfter: CMTime.zero, completionHandler: { [weak self] _ in
             guard let s = self, let d = s.delegate else { return }
             if CMTimeCompare(seekTimeInProgress, s.desiredTime) == 0 {
                 s.player?.rate = d.rate.isPaused ? 0.0 : d.rate.rate

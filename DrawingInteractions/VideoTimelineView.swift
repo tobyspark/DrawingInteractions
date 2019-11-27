@@ -19,7 +19,7 @@ class VideoTimelineView: UIView {
     // MARK: Properties
     
     let videoIsFlipped = true
-    let textAttributes:[NSAttributedStringKey: Any] = [.foregroundColor: UIColor.white]
+    let textAttributes:[NSAttributedString.Key: Any] = [.foregroundColor: UIColor.white]
     let targetPoints:CGFloat = 40
     
     func setVideoTrack(_ track: AVAssetTrack) {
@@ -203,7 +203,7 @@ class VideoTimelineView: UIView {
                 frames.updateValue(nil, forKey: t)
             }
 
-            let imageTimesToGet = imageTimesToAdd.filter { CMTimeRangeContainsTime(timeRange, CMTime(value:$0, timescale: time.timescale)) }
+            let imageTimesToGet = imageTimesToAdd.filter { CMTimeRangeContainsTime(timeRange, time: CMTime(value:$0, timescale: time.timescale)) }
             g.generateCGImagesAsynchronously(
                 forTimes: imageTimesToGet.sorted().map { NSValue(time: CMTime(value: $0, timescale: time.timescale)) },
                 completionHandler: { (requestedTime, image, actualTime, resultCode, error) in

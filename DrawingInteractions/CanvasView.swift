@@ -273,7 +273,7 @@ class CanvasView: UIView {
         setFrozenImageNeedsUpdate()
 
         // Cease tracking this line now that it is finished.
-        lines.remove(at: lines.index(of: line)!)
+        lines.remove(at: lines.firstIndex(of: line)!)
 
         // Store into finished lines to allow for a full redraw on option changes.
         finishedLines.append(line)
