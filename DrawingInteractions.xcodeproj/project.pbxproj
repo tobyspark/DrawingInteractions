@@ -11,9 +11,10 @@
 		4B5AB9AA20698F6900F81A8E /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B5AB9A920698F6900F81A8E /* Document.swift */; };
 		4B62B719238E8B1F005E227A /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B62B718238E8B1F005E227A /* Settings.swift */; };
 		4B62B71B238EB7A2005E227A /* LineCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B62B71A238EB7A2005E227A /* LineCodable.swift */; };
+		4B62B73F238F1A0B005E227A /* DocumentBrowserViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B62B73E238F1A0B005E227A /* DocumentBrowserViewController.swift */; };
 		4B67F86820977B5C00327FAA /* Readme.markdown in Resources */ = {isa = PBXBuildFile; fileRef = 4B67F86720977B5C00327FAA /* Readme.markdown */; };
 		4B8A2DB820651C91005B9223 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B8A2DB720651C91005B9223 /* AppDelegate.swift */; };
-		4B8A2DBA20651C91005B9223 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B8A2DB920651C91005B9223 /* ViewController.swift */; };
+		4B8A2DBA20651C91005B9223 /* DocumentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B8A2DB920651C91005B9223 /* DocumentViewController.swift */; };
 		4B8A2DBD20651C91005B9223 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4B8A2DBB20651C91005B9223 /* Main.storyboard */; };
 		4B8A2DBF20651C91005B9223 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4B8A2DBE20651C91005B9223 /* Assets.xcassets */; };
 		4B8A2DC220651C91005B9223 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4B8A2DC020651C91005B9223 /* LaunchScreen.storyboard */; };
@@ -40,10 +41,11 @@
 		4B5AB9A920698F6900F81A8E /* Document.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Document.swift; sourceTree = "<group>"; };
 		4B62B718238E8B1F005E227A /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 		4B62B71A238EB7A2005E227A /* LineCodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineCodable.swift; sourceTree = "<group>"; };
+		4B62B73E238F1A0B005E227A /* DocumentBrowserViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DocumentBrowserViewController.swift; sourceTree = "<group>"; };
 		4B67F86720977B5C00327FAA /* Readme.markdown */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = Readme.markdown; sourceTree = "<group>"; };
 		4B8A2DB420651C91005B9223 /* DrawingInteractions.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DrawingInteractions.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4B8A2DB720651C91005B9223 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		4B8A2DB920651C91005B9223 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		4B8A2DB920651C91005B9223 /* DocumentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentViewController.swift; sourceTree = "<group>"; };
 		4B8A2DBC20651C91005B9223 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		4B8A2DBE20651C91005B9223 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4B8A2DC120651C91005B9223 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -99,7 +101,8 @@
 			isa = PBXGroup;
 			children = (
 				4B8A2DB720651C91005B9223 /* AppDelegate.swift */,
-				4B8A2DB920651C91005B9223 /* ViewController.swift */,
+				4B62B73E238F1A0B005E227A /* DocumentBrowserViewController.swift */,
+				4B8A2DB920651C91005B9223 /* DocumentViewController.swift */,
 				4B8A2DD720652AC5005B9223 /* VideoView.swift */,
 				4B8A2DDB2065502A005B9223 /* VideoTimelineView.swift */,
 				4B989A6F2068E9FB0070C438 /* CanvasView.swift */,
@@ -235,8 +238,9 @@
 			files = (
 				4B8A2DD820652AC5005B9223 /* VideoView.swift in Sources */,
 				4B5AB9AA20698F6900F81A8E /* Document.swift in Sources */,
+				4B62B73F238F1A0B005E227A /* DocumentBrowserViewController.swift in Sources */,
 				4B2C42FE206BB2DF00415827 /* NotifyingCanvasView.swift in Sources */,
-				4B8A2DBA20651C91005B9223 /* ViewController.swift in Sources */,
+				4B8A2DBA20651C91005B9223 /* DocumentViewController.swift in Sources */,
 				4B989A712068E9FB0070C438 /* CanvasView.swift in Sources */,
 				4B989A722068E9FB0070C438 /* Line.swift in Sources */,
 				4B62B719238E8B1F005E227A /* Settings.swift in Sources */,

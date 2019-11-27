@@ -54,7 +54,7 @@ class VideoTimelineView: UIView {
         setNeedsDisplay()
     }
     
-    var delegate: (TimeProtocol & AnnotationProtocol)?
+    var delegate: (TimeProtocol & DocumentProtocol)?
     
     // MARK: Overrides
     
@@ -215,11 +215,11 @@ class VideoTimelineView: UIView {
         }
         // drawings
         if let d = delegate {
-            let drawingTimes = d.annotations.staticDrawings.keys.filter({ $0 >= timeMin && $0 <= timeMax })
+            let drawingTimes = d.document.staticDrawings.keys.filter({ $0 >= timeMin && $0 <= timeMax })
             for time in drawingTimes {
                 if drawingsStore.index(forKey: time) == nil {
                     thumbContext.clear(CGRect(x: 0, y: 0, width: thumbContext.width, height: thumbContext.height))
-                    for line in d.annotations.staticDrawings[time]! {
+                    for line in d.document.staticDrawings[time]! {
                         line.drawCommitedPointsInContext(context: thumbContext, isDebuggingEnabled: false, usePreciseLocation: true, transform: thumbTransform)
                     }
                     if let image = thumbContext.makeImage() {

@@ -20,12 +20,12 @@ protocol TimeProtocol: AnyObject {
     func scrub(to newTime:CMTime, withDuration duration:TimeInterval)
 }
 
-protocol AnnotationProtocol: AnyObject {
-    var annotations: Document! { get }
+protocol DocumentProtocol: AnyObject {
+    var document: Document! { get }
     func linesDidUpdate()
 }
 
-class ViewController: UIViewController, TimeProtocol, AnnotationProtocol {
+class DocumentViewController: UIViewController, TimeProtocol, DocumentProtocol {
     
     // MARK: Properties
     
@@ -33,7 +33,7 @@ class ViewController: UIViewController, TimeProtocol, AnnotationProtocol {
     let stripHeight:CGFloat = 44
     
     /// The annotations, i.e. drawings.
-    var annotations: Document!
+    var document: Document!
     
     /// The video playback rate.
     ///
@@ -62,11 +62,11 @@ class ViewController: UIViewController, TimeProtocol, AnnotationProtocol {
                 // Dynamic Drawings - Line still active across frames
                 if canvasView.lines.count > 0 {
                     let info = (canvasView.lines.first!, canvasView.lines.first!.points.last!)
-                    if annotations.dynamicDrawings.index(forKey: time.value) == nil {
-                        annotations.dynamicDrawings[time.value] = [info]
+                    if document.dynamicDrawings.index(forKey: time.value) == nil {
+                        document.dynamicDrawings[time.value] = [info]
                     }
                     else {
-                        annotations.dynamicDrawings[time.value]!.append(info)
+                        document.dynamicDrawings[time.value]!.append(info)
                     }
                 }
                 if canvasView.focusPoints.count > 0 {
@@ -87,14 +87,14 @@ class ViewController: UIViewController, TimeProtocol, AnnotationProtocol {
                 // Propogate time amongst views
                 timelineView.time = time
                 // Load static drawing
-                if let lines = annotations.staticDrawings[time.value] {
+                if let lines = document.staticDrawings[time.value] {
                     canvasView.finishedLines = lines
                     canvasView.needsFullRedraw = true
                     canvasView.setNeedsDisplay()
                 }
                 // Load dynamic drawing, aka focus points
                 let timeSpan = CMTimeValue(time.timescale) / 2 // i.e. 1 second total span
-                let spread = annotations.dynamicDrawings.filter { $0.key > time.value - timeSpan && $0.key < time.value + timeSpan }
+                let spread = document.dynamicDrawings.filter { $0.key > time.value - timeSpan && $0.key < time.value + timeSpan }
                 for (instantTime, info) in spread {
                     let focusAmount = 1.0 - CGFloat(abs(instantTime - time.value)) / CGFloat(timeSpan)
                     canvasView.focusPoints.append((amount: focusAmount, points: info.map { $0.point.preciseLocation }))
@@ -115,7 +115,7 @@ class ViewController: UIViewController, TimeProtocol, AnnotationProtocol {
     /// Marshall updates to the current drawing data around the app
     func linesDidUpdate() {
         if canvasView.finishedLines.count > 0 {
-            annotations.staticDrawings[time.value] = canvasView.finishedLines
+            document.staticDrawings[time.value] = canvasView.finishedLines
             timelineView.drawingsDidChange()
         }
     }
@@ -234,27 +234,6 @@ class ViewController: UIViewController, TimeProtocol, AnnotationProtocol {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        guard let documentURL = try? Settings.urlCacheDoc() else {
-            let alertController = UIAlertController(title: "Cannot open document", message: "Could not access storage", preferredStyle: .alert)
-            self.present(alertController, animated: true, completion: nil)
-            return
-        }
-        annotations = Document(fileURL: documentURL)
-        do {
-            try documentURL.checkResourceIsReachable()
-            annotations.open { (success) in
-                guard success else {
-                    fatalError("Could not load document")
-                }
-            }
-        } catch {
-            annotations.save(to: documentURL, for: .forCreating) { (success) in
-                guard success else {
-                    fatalError("Could not create document")
-                }
-            }
-        }
-        
         guard let movieURL = Bundle.main.url(forResource: movie.name, withExtension: movie.ext) else {
             fatalError("Can't find \(movie)")
         }
@@ -279,7 +258,28 @@ class ViewController: UIViewController, TimeProtocol, AnnotationProtocol {
         
         setVideo(movieURL)
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        // Access the document
+        document.open(completionHandler: { (success) in
+            if success {
+                // Display the content of the document, e.g.:
+                print("Opened document")
+            } else {
+                // Make sure to handle the failed import appropriately, e.g., by presenting an error message to the user.
+                print("Failed to open document")
+            }
+        })
+    }
 
+    @IBAction func dismissDocumentViewController() {
+        dismiss(animated: true) {
+            self.document.close(completionHandler: nil)
+        }
+    }
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
