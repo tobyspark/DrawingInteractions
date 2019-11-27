@@ -351,6 +351,27 @@ class LinePoint: NSObject  {
         estimationUpdateIndex = point.estimationUpdateIndex
     }
     
+    init(sequenceNumber: Int,
+         timestamp: TimeInterval,
+         force: CGFloat,
+         x: CGFloat,
+         y: CGFloat,
+         altitudeAngle: CGFloat,
+         azimuthAngle: CGFloat) {
+        self.sequenceNumber = sequenceNumber
+        self.timestamp = timestamp
+        self.force = force
+        self.location = CGPoint(x: x, y: y)
+        self.preciseLocation = self.location
+        self.estimatedPropertiesExpectingUpdates = UITouch.Properties()
+        self.estimatedProperties = UITouch.Properties()
+        self.type = .stylus
+        self.altitudeAngle = altitudeAngle
+        self.azimuthAngle = azimuthAngle
+        self.estimationUpdateIndex = nil
+        self.pointType = .Standard
+    }
+ 
     func updateWithTouch(touch: UITouch) -> Bool {
         guard let estimationUpdateIndex = touch.estimationUpdateIndex, estimationUpdateIndex == estimationUpdateIndex else { return false }
 
