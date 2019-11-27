@@ -21,7 +21,7 @@ protocol TimeProtocol: AnyObject {
 }
 
 protocol AnnotationProtocol: AnyObject {
-    var annotations: Annotations { get set }
+    var annotations: Document! { get }
     func linesDidUpdate()
 }
 
@@ -33,7 +33,7 @@ class ViewController: UIViewController, TimeProtocol, AnnotationProtocol {
     let stripHeight:CGFloat = 44
     
     /// The annotations, i.e. drawings.
-    var annotations = Annotations()
+    var annotations: Document!
     
     /// The video playback rate.
     ///
@@ -233,6 +233,27 @@ class ViewController: UIViewController, TimeProtocol, AnnotationProtocol {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        guard let documentURL = try? Settings.urlCacheDoc() else {
+            let alertController = UIAlertController(title: "Cannot open document", message: "Could not access storage", preferredStyle: .alert)
+            self.present(alertController, animated: true, completion: nil)
+            return
+        }
+        annotations = Document(fileURL: documentURL)
+        do {
+            try documentURL.checkResourceIsReachable()
+            annotations.open { (success) in
+                guard success else {
+                    fatalError("Could not load document")
+                }
+            }
+        } catch {
+            annotations.save(to: documentURL, for: .forCreating) { (success) in
+                guard success else {
+                    fatalError("Could not create document")
+                }
+            }
+        }
         
         guard let movieURL = Bundle.main.url(forResource: movie.name, withExtension: movie.ext) else {
             fatalError("Can't find \(movie)")
