@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4B296E672391379200A23F57 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B296E662391379200A23F57 /* MobileCoreServices.framework */; };
 		4B2C42FE206BB2DF00415827 /* NotifyingCanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B2C42FD206BB2DF00415827 /* NotifyingCanvasView.swift */; };
 		4B5AB9AA20698F6900F81A8E /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B5AB9A920698F6900F81A8E /* Document.swift */; };
 		4B62B719238E8B1F005E227A /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B62B718238E8B1F005E227A /* Settings.swift */; };
@@ -37,6 +38,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		4B296E662391379200A23F57 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		4B2C42FD206BB2DF00415827 /* NotifyingCanvasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotifyingCanvasView.swift; sourceTree = "<group>"; };
 		4B5AB9A920698F6900F81A8E /* Document.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Document.swift; sourceTree = "<group>"; };
 		4B62B718238E8B1F005E227A /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
@@ -58,6 +60,7 @@
 		4B8A2DDB2065502A005B9223 /* VideoTimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoTimelineView.swift; sourceTree = "<group>"; };
 		4B989A6F2068E9FB0070C438 /* CanvasView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CanvasView.swift; sourceTree = "<group>"; };
 		4B989A702068E9FB0070C438 /* Line.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Line.swift; sourceTree = "<group>"; };
+		4BA839AC238FAE8C00830E32 /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = System/Library/Frameworks/CoreServices.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,6 +68,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4B296E672391379200A23F57 /* MobileCoreServices.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -85,6 +89,7 @@
 				4B8A2DB620651C91005B9223 /* DrawingInteractions */,
 				4B8A2DCB20651C91005B9223 /* DrawingInteractionsTests */,
 				4B8A2DB520651C91005B9223 /* Products */,
+				4BA839AB238FAE8C00830E32 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -103,13 +108,13 @@
 				4B8A2DB720651C91005B9223 /* AppDelegate.swift */,
 				4B62B73E238F1A0B005E227A /* DocumentBrowserViewController.swift */,
 				4B8A2DB920651C91005B9223 /* DocumentViewController.swift */,
+				4B5AB9A920698F6900F81A8E /* Document.swift */,
 				4B8A2DD720652AC5005B9223 /* VideoView.swift */,
 				4B8A2DDB2065502A005B9223 /* VideoTimelineView.swift */,
 				4B989A6F2068E9FB0070C438 /* CanvasView.swift */,
 				4B2C42FD206BB2DF00415827 /* NotifyingCanvasView.swift */,
 				4B989A702068E9FB0070C438 /* Line.swift */,
 				4B62B71A238EB7A2005E227A /* LineCodable.swift */,
-				4B5AB9A920698F6900F81A8E /* Document.swift */,
 				4B62B718238E8B1F005E227A /* Settings.swift */,
 				4B8A2DBB20651C91005B9223 /* Main.storyboard */,
 				4B8A2DBE20651C91005B9223 /* Assets.xcassets */,
@@ -127,6 +132,15 @@
 				4B8A2DCE20651C91005B9223 /* Info.plist */,
 			);
 			path = DrawingInteractionsTests;
+			sourceTree = "<group>";
+		};
+		4BA839AB238FAE8C00830E32 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				4B296E662391379200A23F57 /* MobileCoreServices.framework */,
+				4BA839AC238FAE8C00830E32 /* CoreServices.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

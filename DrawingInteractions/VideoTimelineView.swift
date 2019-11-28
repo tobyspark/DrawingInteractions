@@ -54,7 +54,7 @@ class VideoTimelineView: UIView {
         setNeedsDisplay()
     }
     
-    var delegate: (TimeProtocol & DocumentProtocol)?
+    weak var delegate: (TimeProtocol & DocumentProtocol)?
     
     // MARK: Overrides
     

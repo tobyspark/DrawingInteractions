@@ -13,6 +13,7 @@ import AVFoundation
 ///
 /// A `VideoView` displays the video and is the source for time, i.e. the video's current time, throughout the app. A subview `VideoTimelineView` displays a timeline scrubber, with input handling. Another subview provides the drawing canvas, with input handling. This controller marshalls the current time around the application, handling the storage and retrieval of drawing annotations per time change.
 
+/// For delegates that affect video playback
 protocol TimeProtocol: AnyObject {
     var time: CMTime { get set }
     var desiredTime: CMTime { get set }
@@ -20,6 +21,7 @@ protocol TimeProtocol: AnyObject {
     func scrub(to newTime:CMTime, withDuration duration:TimeInterval)
 }
 
+/// For delegates that affect document state
 protocol DocumentProtocol: AnyObject {
     var document: Document! { get }
     func linesDidUpdate()
@@ -28,10 +30,7 @@ protocol DocumentProtocol: AnyObject {
 class DocumentViewController: UIViewController, TimeProtocol, DocumentProtocol {
     
     // MARK: Properties
-    
-    let movie = (name:"testvideo", ext:"mov")
-    let stripHeight:CGFloat = 44
-    
+        
     /// The annotations, i.e. drawings.
     var document: Document!
     
@@ -44,7 +43,8 @@ class DocumentViewController: UIViewController, TimeProtocol, DocumentProtocol {
         }
     }
     
-    // The time any component wants the app (i.e. video) to be at
+    /// The time any component wants the app (i.e. video) to be at
+    // TODO: There is also scrubTo:, should there be both?
     var desiredTime = CMTime.zero {
         didSet {
             time = CMTimeClampToRange(time, range: timeBounds)
@@ -234,10 +234,9 @@ class DocumentViewController: UIViewController, TimeProtocol, DocumentProtocol {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        guard let movieURL = Bundle.main.url(forResource: movie.name, withExtension: movie.ext) else {
-            fatalError("Can't find \(movie)")
-        }
+        videoView.delegate = self
         
+        // Lay out views not in storyboard
         canvasView = NotifyingCanvasView()
         canvasView.frame = view.frame
         canvasView.translatesAutoresizingMaskIntoConstraints = true
@@ -247,30 +246,29 @@ class DocumentViewController: UIViewController, TimeProtocol, DocumentProtocol {
         canvasView.delegate = self
         view.addSubview(canvasView)
         
-        let strip = CGRect(x: 0, y: 0, width: view.frame.width, height: stripHeight)
+        let strip = CGRect(x: 0, y: 0, width: view.frame.width, height: Settings.stripHeight)
         timelineView = VideoTimelineView(frame: strip)
         timelineView.translatesAutoresizingMaskIntoConstraints = true
         timelineView.center = CGPoint(x: view.bounds.midX, y: view.bounds.midY)
         timelineView.autoresizingMask = [.flexibleWidth, .flexibleTopMargin, .flexibleBottomMargin]
         timelineView.delegate = self
-        videoView.delegate = self
         view.addSubview(timelineView)
-        
-        setVideo(movieURL)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
+
         // Access the document
-        document.open(completionHandler: { (success) in
-            if success {
-                // Display the content of the document, e.g.:
-                print("Opened document")
-            } else {
-                // Make sure to handle the failed import appropriately, e.g., by presenting an error message to the user.
-                print("Failed to open document")
+        document.open(completionHandler: { (openSuccess) in
+            guard
+                openSuccess,
+                let movieURL = self.document.movieURL
+            else {
+                let alertController = UIAlertController(title: "Cannot open document", message: "Could not parse URL", preferredStyle: .alert)
+                self.present(alertController, animated: true, completion: nil)
+                return
             }
+            self.setVideo(movieURL)
         })
     }
 

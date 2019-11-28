@@ -43,16 +43,25 @@ class VideoView: UIView {
         set {
             playerLayer.player = newValue
             
-            if let d = delegate, let videoTrack = playerLayer.player?.currentItem?.asset.tracks(withMediaType: .video).first {
-                let timescale = videoTrack.naturalTimeScale
-                let interval = videoTrack.minFrameDuration
-                let mainQueue = DispatchQueue.main
-                playerObserver = playerLayer.player?.addPeriodicTimeObserver(
-                    forInterval: interval,
-                    queue: mainQueue,
-                    using: { d.time = CMTimeConvertScale($0, timescale: timescale, method: .roundHalfAwayFromZero) } // Emit a constant timescale, for sanity elsewhere
-                )
+            guard
+                let delegate = delegate,
+                let videoTrack = playerLayer.player?.currentItem?.asset.tracks(withMediaType: .video).first
+            else {
+                return
             }
+            let timescale = videoTrack.naturalTimeScale
+            let interval = videoTrack.minFrameDuration
+            let mainQueue = DispatchQueue.main
+            playerObserver = playerLayer.player?.addPeriodicTimeObserver(
+                forInterval: interval,
+                queue: mainQueue,
+                using: { [weak delegate] in
+                    if let delegate = delegate {
+                        // Emit a constant timescale, for sanity elsewhere
+                        delegate.time = CMTimeConvertScale($0, timescale: timescale, method: .roundHalfAwayFromZero)
+                    }
+                }
+            )
         }
     }
     

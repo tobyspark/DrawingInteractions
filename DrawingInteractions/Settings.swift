@@ -9,14 +9,27 @@
 import UIKit
 
 struct Settings {
-    static let filenameDocument = "document.drawinginteractions"
     static let filenameStaticDrawings = "staticDrawings.json"
     static let filenameDynamicDrawings = "dynamicDrawings.json"
+    static let filenameMovie = "video"
     static let documentType = "net.sparklive.drawinginteractions.archive"
+    static let documentExtension = "drawinginteractions"
+    
+    static let stripHeight:CGFloat = 44
+    
+    static func filenameDocument(_ name: String = "document") -> String {
+        "\(name) \(dateFormatter.string(from: Date())).\(documentExtension)"
+    }
     
     static func urlCacheDoc() throws -> URL {
-        return try FileManager.default
+        try FileManager.default
             .url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
-            .appendingPathComponent(filenameDocument)
+            .appendingPathComponent(filenameDocument())
     }
+    
+    static private let dateFormatter: DateFormatter = {
+        let df = DateFormatter()
+        df.dateFormat = "yyyy-MM-dd HH-mm-ss"
+        return df
+    }()
 }
