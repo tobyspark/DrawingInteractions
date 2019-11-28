@@ -21,8 +21,8 @@ enum DocumentError: Error {
 }
 
 class Document: UIDocument {
-    var staticDrawings:StaticDrawingsType = [:]
-    var dynamicDrawings:DynamicDrawingsType = [:]
+    var staticDrawings:StaticDrawingsType = [:] { didSet { updateChangeCount(.done) }}
+    var dynamicDrawings:DynamicDrawingsType = [:] { didSet { updateChangeCount(.done) }}
     
     override func contents(forType typeName: String) throws -> Any {
         let staticDrawingsCodable = staticDrawings.mapValues { $0.map({ LineCodable(from: $0) }) }
