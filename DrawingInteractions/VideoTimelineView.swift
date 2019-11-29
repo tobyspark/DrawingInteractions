@@ -45,10 +45,30 @@ class VideoTimelineView: UIView {
     }
     
     func boundsDidChange() {
-        triangleAltitude = iconHeight * sqrt(3.0)/2.0
-        triangle1 = CGPoint(x: bounds.midX - triangleAltitude/2, y: bounds.midY - iconHeight/2)
-        triangle2 = CGPoint(x: bounds.midX - triangleAltitude/2, y: bounds.midY + iconHeight/2)
-        triangle3 = CGPoint(x: bounds.midX + triangleAltitude/2, y: bounds.midY)
+        let triangleAltitude = iconHeight * sqrt(3.0)/2.0
+        let triangle1 = CGPoint(x: bounds.midX - triangleAltitude/2, y: bounds.midY - iconHeight/2)
+        let triangle2 = CGPoint(x: bounds.midX - triangleAltitude/2, y: bounds.midY + iconHeight/2)
+        let triangle3 = CGPoint(x: bounds.midX + triangleAltitude/2, y: bounds.midY)
+        
+        playPath = CGMutablePath()
+        playPath.move(to: triangle1)
+        playPath.addLine(to: triangle2)
+        playPath.addLine(to: triangle3)
+        playPath.closeSubpath()
+        
+        pausePath = CGMutablePath()
+        pausePath.addRect(CGRect(
+            x: bounds.midX - rectSpacing - rectWidth,
+            y: bounds.midY - iconHeight/2,
+            width: rectWidth,
+            height: iconHeight
+        ))
+        pausePath.addRect(CGRect(
+            x: bounds.midX + rectSpacing,
+            y: bounds.midY - iconHeight/2,
+            width: rectWidth,
+            height: iconHeight
+        ))
         
         updateImages()
         setNeedsDisplay()
@@ -129,31 +149,18 @@ class VideoTimelineView: UIView {
             }
             
             // Draw play/pause icon with 'now' markers
-            context.setFillColor(gray: 1.0, alpha: 1.0)
+            context.setFillColor(gray: 0.0, alpha: 0.5)
             context.strokeLineSegments(between: [
                 CGPoint(x: bounds.midX, y: 0), CGPoint(x: bounds.midX, y: 0 + tickHeight),
                 CGPoint(x: bounds.midX, y: displaySize.height), CGPoint(x: bounds.midX, y: displaySize.height - tickHeight),
                 ])
             if delegate?.rate.isPaused ?? true {
-                context.strokeLineSegments(between: [
-                    triangle1, triangle2,
-                    triangle2, triangle3,
-                    triangle3, triangle1
-                    ])
+                context.addPath(playPath)
+                context.drawPath(using: .fillStroke)
             }
             else {
-                context.stroke(CGRect(
-                    x: bounds.midX - rectSpacing - rectWidth,
-                    y: bounds.midY - iconHeight/2,
-                    width: rectWidth,
-                    height: iconHeight
-                ))
-                context.stroke(CGRect(
-                    x: bounds.midX + rectSpacing,
-                    y: bounds.midY - iconHeight/2,
-                    width: rectWidth,
-                    height: iconHeight
-                ))
+                context.addPath(pausePath)
+                context.drawPath(using: .fillStroke)
             }
         }
     }
@@ -172,10 +179,8 @@ class VideoTimelineView: UIView {
     let iconHeight = CGFloat(20)
     let rectWidth = CGFloat(7)
     let rectSpacing = CGFloat(3)
-    var triangleAltitude = CGFloat()
-    var triangle1 = CGPoint()
-    var triangle2 = CGPoint()
-    var triangle3 = CGPoint()
+    var playPath = CGMutablePath()
+    var pausePath = CGMutablePath()
     
     private func updateImages() {
         let imageCountOutwards = Int(((bounds.width*0.5) / displaySize.width).rounded(.up)) + 1
