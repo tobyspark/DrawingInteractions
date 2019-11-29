@@ -120,21 +120,6 @@ class DocumentViewController: UIViewController, TimeProtocol, DocumentProtocol {
         }
     }
     
-    /// Set the video to play
-    ///
-    /// - ToDo: Ensure everything is (re-)initialised from the video, here.
-    func setVideo(_ movieURL:URL) {
-        let player = AVPlayer(url: movieURL)
-        if let track = player.currentItem!.asset.tracks(withMediaType: .video).first {
-            timeBounds = track.timeRange
-            videoSize = track.naturalSize
-            timelineView.setVideoTrack(track)
-            videoView.player = player
-            time = track.timeRange.start
-            rate = (rate: 1.0, isPaused: false)
-        }
-    }
-    
     /// Animate time property to a new value, over a duration. In video-speak, "to scrub"
     ///
     /// - parameter newTime: the new time to animate to.
@@ -266,9 +251,25 @@ class DocumentViewController: UIViewController, TimeProtocol, DocumentProtocol {
             else {
                 let alertController = UIAlertController(title: "Cannot open document", message: "Could not parse URL", preferredStyle: .alert)
                 self.present(alertController, animated: true, completion: nil)
+                self.dismissDocumentViewController()
                 return
             }
-            self.setVideo(movieURL)
+            
+            let player = AVPlayer(url: movieURL)
+            guard let track = player.currentItem?.asset.tracks(withMediaType: .video).first else {
+                let alertController = UIAlertController(title: "Cannot open document", message: "Could not parse video", preferredStyle: .alert)
+                self.present(alertController, animated: true, completion: nil)
+                self.dismissDocumentViewController()
+                return
+            }
+
+            /// Load the video and parse what's needed
+            self.timeBounds = track.timeRange
+            self.videoSize = track.naturalSize
+            self.timelineView.setVideoTrack(track)
+            self.videoView.player = player
+            self.time = track.timeRange.start
+            self.rate = (rate: 1.0, isPaused: false)
         })
     }
 
