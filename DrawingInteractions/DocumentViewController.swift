@@ -108,9 +108,7 @@ class DocumentViewController: UIViewController, TimeProtocol, DocumentProtocol {
     
     var timelineView: VideoTimelineView!
     var canvasView: NotifyingCanvasView!
-    var videoView: VideoView {
-        return view as! VideoView
-    }
+    var videoView: VideoView!
     
     /// Marshall updates to the current drawing data around the app
     func linesDidUpdate() {
@@ -218,12 +216,14 @@ class DocumentViewController: UIViewController, TimeProtocol, DocumentProtocol {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+                
+        videoView = VideoView(frame: view.bounds)
+        videoView.translatesAutoresizingMaskIntoConstraints = true
+        videoView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         videoView.delegate = self
+        view.addSubview(videoView)
         
-        // Lay out views not in storyboard
-        canvasView = NotifyingCanvasView()
-        canvasView.frame = view.frame
+        canvasView = NotifyingCanvasView(frame: view.bounds)
         canvasView.translatesAutoresizingMaskIntoConstraints = true
         canvasView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         canvasView.backgroundColor = .clear
@@ -238,6 +238,15 @@ class DocumentViewController: UIViewController, TimeProtocol, DocumentProtocol {
         timelineView.autoresizingMask = [.flexibleWidth, .flexibleTopMargin, .flexibleBottomMargin]
         timelineView.delegate = self
         view.addSubview(timelineView)
+                
+        let button = UIButton(type: .system)
+        button.setTitle("Close", for: .normal)
+        button.frame = CGRect(x: 20, y: (Settings.stripHeight - 30)/2, width: 60, height: 30)
+        button.layer.cornerRadius = button.bounds.size.height/2
+        button.setTitleColor(.white, for: .normal)
+        button.backgroundColor = UIColor(white: 0, alpha: 0.5)
+        button.addTarget(self, action: #selector(dismissDocumentViewController), for: .touchUpInside)
+        timelineView.addSubview(button)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -273,7 +282,7 @@ class DocumentViewController: UIViewController, TimeProtocol, DocumentProtocol {
         })
     }
 
-    @IBAction func dismissDocumentViewController() {
+    @objc func dismissDocumentViewController() {
         dismiss(animated: true) {
             self.document.close(completionHandler: nil)
         }
